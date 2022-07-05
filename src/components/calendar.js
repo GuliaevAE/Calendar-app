@@ -127,6 +127,7 @@ box-shadow: 0 0 0 0.2vh red;
 
 const DayTitle = styled.div`
 font-size:2vh; 
+color: blue;
 `
 
 const WeeksArrows = styled.div`
