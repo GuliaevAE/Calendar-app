@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/Calendar-app/static/css/main.073c9b0a.css",
+    "main.js": "/Calendar-app/static/js/main.259bfdf4.js",
+    "static/media/leftArrow.svg": "/Calendar-app/static/media/leftArrow.49c8791c6ab0e4565ce6f0fea827408f.svg",
+    "index.html": "/Calendar-app/index.html",
+    "main.073c9b0a.css.map": "/Calendar-app/static/css/main.073c9b0a.css.map",
+    "main.259bfdf4.js.map": "/Calendar-app/static/js/main.259bfdf4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.073c9b0a.css",
+    "static/js/main.259bfdf4.js"
+  ]
+}
