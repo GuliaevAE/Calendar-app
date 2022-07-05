@@ -1,7 +1,13 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import styled from 'styled-components'
 import leftArrow from '../components/leftArrow.svg'
+import axios from "axios"
 
+
+// "proxy"
+//   "private": true,
+//   "homepage": "https://guliaevae.github.io/Calendar-app/",
+//   "dependencies": {
 
 
 const Background = styled.div`
@@ -31,7 +37,7 @@ justify-content:space-between ;
 align-items:center ;
 padding-left:2.5vw ;
 padding-right:2.5vw ;
-font-size:2.5vh; ;
+font-size:2.5vh; 
 `
 const Days = styled.div`
 height: 5vh;
@@ -174,6 +180,18 @@ export default function Calendar1() {
     const [today] = useState(new Date())
     const [activeCell, setActive] = useState([0, 0])
 
+
+    useEffect(() => {
+        NewScore()
+    }, [])
+
+
+
+
+
+
+
+
     function renderCell() {
         let helpArray = []
         let arrayWithTime = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
@@ -241,6 +259,27 @@ export default function Calendar1() {
         'T',
         'F'
     ]
+
+
+
+    async function NewScore() {
+        axios.get(`/`)
+            .then(res => {
+                
+                console.log(res)
+            })
+
+
+
+        
+
+
+    }
+
+
+
+
+
 
     let titleOfWeeksDay = []
 
@@ -413,7 +452,7 @@ export default function Calendar1() {
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
                             if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
-                            
+
                                 return <WeekDayWithDay >
                                     <DayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</DayTitle>
                                     <TodayFrame>{item}</TodayFrame>
