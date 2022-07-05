@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState} from "react";
 import styled from 'styled-components'
 import leftArrow from '../components/leftArrow.svg'
 
@@ -20,7 +20,6 @@ position:relative ;
 @media (max-width: 740px) { 
     width:100vw ;
   }
-/* width:100vw ; */
 `
 
 const Title = styled.div`
@@ -46,7 +45,6 @@ display:flex ;
 justify-content: space-between ;
 align-items:center ;
 padding-left:95px ;
-font-weight: bold;
 font-size:2.2vh; 
 padding-right:40px ;
 @media (max-width: 740px) { 
@@ -56,7 +54,6 @@ padding-right:40px ;
 `
 
 const Main = styled.div`
-/* padding-top:10px ; */
 max-height:75vh ;
 background:white ;
 overflow-y:scroll;
@@ -67,7 +64,6 @@ const RedText = styled.span`
 color: red;
 font-size:2.7vh ;
 `
-
 
 const Footer = styled(Days)`
 display:flex ;
@@ -82,17 +78,16 @@ font-size:2.2vh ;
 const WeekDayWithDay = styled.div`
 display:flex ;
 flex-direction:column ;
-font-size:2.2vh;
+font-size:2.1vh;
 text-align:center ;
 align-items:center ;
-font-weight: bold;
 position:relative ;
 `
+
 const StyledForGrid = styled.div`
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
 padding-left:8vh ;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 position: relative ;
 `
 
@@ -114,27 +109,24 @@ position:absolute ;
 top: -1.5vh;
 left: 3vh;
 color: rgba(190, 190, 191, 1) ;
-/* padding-left:10px ; */
 `
 
 const DayFrame = styled.div`
 width :2vh;
-    height:2vh;
-   
-    display:flex ;
-    align-items:center ;
-    justify-content:center ;
+height:2vh;
+display:flex ;
+align-items:center ;
+justify-content:center ;
 `
 
 const TodayFrame = styled(DayFrame)`
-    background-color: red;  
-    border-radius:50%;
-    box-shadow: 0 0 0 0.5vh red;
-   
+background-color: red;  
+border-radius:50%;
+box-shadow: 0 0 0 0.2vh red;
 `
+
 const DayTitle = styled.div`
 font-size:2vh; 
-/* padding :0.5vh ; */
 `
 
 const WeeksArrows = styled.div`
@@ -145,7 +137,6 @@ display:flex ;
 align-items:center ;
 padding-left:1vw ;
 padding-top:0.5vh ;
-/* justify-content:space-between ; */
 `
 
 const Arrow = styled.img`
@@ -155,34 +146,27 @@ height:5vh;
 
 &:hover{
     opacity:1 ;
-
 }
 &:active{
-    opacity:1 ;
-    
+    opacity:1 ;  
 }
-/* @media(max-width: 740px){
-    width:5vw ;
-} */
 `
 
 export default function Calendar1() {
     const [week, setWeek] = useState([0, 7])
-    let [swichOn, setsw] = useState([true, 0])
+    const [swichOn, setsw] = useState([true, 0])
     const [database, setData] = useState({
         "00:00": {
-            162022: "'00000000'",
-
+            162022: "00:15:00",
         },
         "03:00": {
-            662022: "'33333333'",
-            2062022: "sjkndkjasndkjasnkd"
+            662022: "03:30:00",
+            2062022: "03:20:00"
         },
         "05:00": {
-            162022: "55",
-            562022: "555555555",
-            962022: "2"
-
+            162022: "05:10:00",
+            562022: "05:10:00",
+            962022: "05:10:00"
         }
 
     })
@@ -256,8 +240,8 @@ export default function Calendar1() {
         'W',
         'T',
         'F'
+    ]
 
-    ];
     let titleOfWeeksDay = []
 
 
@@ -296,7 +280,6 @@ export default function Calendar1() {
         let arr = week.map(item => item - daysInMonth)
         setWeek(arr)
     }
-    
 
     function GetDays() {
         let arr = []
@@ -304,7 +287,6 @@ export default function Calendar1() {
         let y = 0
         let theDate = new Date(today.getFullYear(), today.getMonth())
         function nextDay() {
-            
             theDate.setDate(theDate.getDate() + week[0])
 
             if (swichOn[0] === true) {
@@ -350,9 +332,6 @@ export default function Calendar1() {
             }
 
             function arrayFilling() {
-                console.log("67", theDate.getDate())
-                console.log("arr", arr)
-                console.log("67", today.getDate())
                 for (let i = 0; i < 7; i++) {
                     arr.push(theDate.getDate())
                     titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
@@ -365,7 +344,7 @@ export default function Calendar1() {
         }
 
         nextDay()
-        return { "Days": arr, "Month": m, "Year":y }
+        return { "Days": arr, "Month": m, "Year": y }
     }
 
 
@@ -374,14 +353,11 @@ export default function Calendar1() {
     }
 
     function addNewInterview() {
-
         let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-04 05:10:00');
-        let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;  
-        
-        if(eventTime.match(regexp)[0] !== eventTime){
+        let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
+        if (eventTime.match(regexp)[0] !== eventTime) {
             return alert("Данные введены неверно")
         }
-       
         let датаивремя = eventTime.split(" ")
         let толькодата = датаивремя[0].split("-")
         let YYYY
@@ -390,16 +366,13 @@ export default function Calendar1() {
         if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
         if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
         if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
-
-        if(MM+1>12){
+        if (MM + 1 > 12) {
             return alert("Неверно введен месяц")
         }
         let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
-        
-        if(DD>helpdate){
+        if (DD > helpdate) {
             return alert("Неверно введен день")
         }
-
         let code = `${DD}` + `${MM}` + `${YYYY}`
         let тольковремя = датаивремя[1].split(":")
         let часы = тольковремя[0] + ":00"
@@ -422,8 +395,6 @@ export default function Calendar1() {
     function nextWeek() {
         let arr = week.map(item => item + 7)
         setWeek(arr)
-
-
     }
 
     function prevWeek() {
@@ -442,7 +413,7 @@ export default function Calendar1() {
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
                             if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
-                                //=== GetDays()["Month"]
+                            
                                 return <WeekDayWithDay >
                                     <DayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</DayTitle>
                                     <TodayFrame>{item}</TodayFrame>
