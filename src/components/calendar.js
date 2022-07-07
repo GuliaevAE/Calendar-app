@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from 'styled-components'
 import leftArrow from '../components/leftArrow.svg'
 import axios from "axios"
+import { doc, setDoc, getDocs, updateDoc,deleteField, collection, query } from "firebase/firestore";
 
+import { Context } from "../index";
+
+// import { collection } from 'firebase/firestore';
+// import { useCollection } from 'react-firebase-hooks/firestore';
+
+
+
+
+
+import { useCollection } from 'react-firebase-hooks/firestore';
 
 // "proxy"
 //   "private": true,
@@ -160,31 +171,79 @@ height:5vh;
 `
 
 export default function Calendar1() {
+
+    const { firebaseApp, firestore } = useContext(Context)
+    // const [database] = useCollection(
+    //     firestore.collection('cities')
+    // )
+
+    const [cutout, setout] = useState(true)
+
+    let alldata = collection(firestore, 'dates&times')
+    console.log("alldata", alldata)
+    
+    const [value, loading] = useCollection(collection(firestore, 'dates&times'),{
+        snapshotListenOptions: { includeMetadataChanges: true },
+      })
+    console.log("value", value)
+
+      
+
+
+    
+   
+
+    const [database, setData] = useState({})
+
+    useEffect(() => {
+        getMes()
+    }, [cutout])
+
+    async function getMes() {
+
+        let p1 = {}
+
+        let mes = await getDocs(query(collection(firestore, "dates&times")))
+        // console.log(mes)
+        mes.forEach((doc) => {
+            console.log(doc.id, "=>", doc.data())
+            p1[doc.id] = doc.data()
+            // for(let key in doc.data()){
+            //     p1[doc.id] = doc.data()[key]
+            // }
+
+        })
+        console.log("p1", p1)
+        setData(p1)
+        console.log("state", database)
+        
+
+    }
+
+
     const [week, setWeek] = useState([0, 7])
     const [swichOn, setsw] = useState([true, 0])
-    const [database, setData] = useState({
-        "00:00": {
-            162022: "00:15:00",
-        },
-        "03:00": {
-            662022: "03:30:00",
-            2062022: "03:20:00"
-        },
-        "05:00": {
-            162022: "05:10:00",
-            562022: "05:10:00",
-            962022: "05:10:00"
-        }
+    // const [database, setData] = useState({
+    //     "00:00": {
+    //         162022: "00:15:00",
+    //     },
+    //     "03:00": {
+    //         662022: "03:30:00",
+    //         2062022: "03:20:00"
+    //     },
+    //     "05:00": {
+    //         162022: "05:10:00",
+    //         562022: "05:10:00",
+    //         962022: "05:10:00"
+    //     }
 
-    })
+    // })
     const [canDelete, setCanDelete] = useState([false, 0, 0])
     const [today] = useState(new Date())
     const [activeCell, setActive] = useState([0, 0])
 
 
-    useEffect(() => {
-        NewScore()
-    }, [])
+
 
 
 
@@ -263,19 +322,6 @@ export default function Calendar1() {
 
 
 
-    async function NewScore() {
-        axios.get(`/`)
-            .then(res => {
-                
-                console.log(res)
-            })
-
-
-
-        
-
-
-    }
 
 
 
@@ -297,12 +343,16 @@ export default function Calendar1() {
         }
     }
 
-    function deleteData(time, code) {
-        let cloneDatabase = Object.assign({}, database);
-        delete cloneDatabase[time][code]
-        setData(cloneDatabase)
+   async function deleteData(time, code) {
+        // let cloneDatabase = Object.assign({}, database);
+        // delete cloneDatabase[time][code]
+        // setData(cloneDatabase)
+        await updateDoc(doc(firestore, 'dates&times', time), {
+            [code]: deleteField()
+        });
         setCanDelete(canDelete[0] = false)
         setActive([0, 0])
+        setout(!cutout)
     }
 
     function nextMonth() {
@@ -392,8 +442,9 @@ export default function Calendar1() {
         setsw([true, 0])
     }
 
-    function addNewInterview() {
-        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-04 05:10:00');
+    async function addNewInterview() {
+
+        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-01 00:10:00');
         let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
         if (eventTime.match(regexp)[0] !== eventTime) {
             return alert("Данные введены неверно")
@@ -416,21 +467,116 @@ export default function Calendar1() {
         let code = `${DD}` + `${MM}` + `${YYYY}`
         let тольковремя = датаивремя[1].split(":")
         let часы = тольковремя[0] + ":00"
-        let obj = {}
-        let obj1 = { [часы]: { [code]: датаивремя[1] } }
-        Object.assign(obj, database)
-        for (let вр in obj1) {
-            for (let дт in obj1[вр]) {
-                if (!Object.hasOwn(obj, вр)) {
-                    obj[вр] = obj1[вр]
-                } else {
-                    obj[вр][дт] = obj1[вр][дт]
-                }
+        // let obj = {}
+        // let obj1 = { [часы]: { [code]: датаивремя[1] } }
+        // Object.assign(obj, database)
+        // for (let вр in obj1) {
+        //     for (let дт in obj1[вр]) {
+        //         if (!Object.hasOwn(obj, вр)) {
+        //             obj[вр] = obj1[вр]
+        //         } else {
+        //             obj[вр][дт] = obj1[вр][дт]
+        //         }
+        //     }
+        // }
+        // setData(obj)
+        // alert("Данные сохранены")
+
+        let a = true
+        Object.keys(database).forEach(key => {
+            // if (key === часы && database[key].hasOwnProperty(code)) {
+            //     return a = false
+            // }
+            if (key === часы) {
+                return a = false
             }
-        }
-        setData(obj)
-        alert("Данные сохранены")
+        })
+
+         
+
+        sendMes(a, часы, code, датаивремя[1])
+
+
+
+
+
+
+
+
+
     }
+
+    async function sendMes(nw, time, code, data) {
+
+        if (nw === true) {
+            // добавление времени
+            alert("отсутствует")
+            await setDoc(doc(firestore, "dates&times", time), {
+                [code]: [data],
+
+            }).then(alert("Данные изменены"))
+
+        } else {
+           
+
+
+             // добавление дня к времени
+             alert("присутствует")
+             await updateDoc(doc(firestore, "dates&times", time), {
+                 [code]: [data],
+ 
+             }).then(alert("Данные изменены"))
+        }
+
+        setout(!cutout)
+
+
+
+
+
+    }
+
+    // function addNewInterview() {
+
+    //     let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-04 05:10:00');
+    //     let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
+    //     if (eventTime.match(regexp)[0] !== eventTime) {
+    //         return alert("Данные введены неверно")
+    //     }
+    //     let датаивремя = eventTime.split(" ")
+    //     let толькодата = датаивремя[0].split("-")
+    //     let YYYY
+    //     let MM
+    //     let DD
+    //     if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
+    //     if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
+    //     if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
+    //     if (MM + 1 > 12) {
+    //         return alert("Неверно введен месяц")
+    //     }
+    //     let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
+    //     if (DD > helpdate) {
+    //         return alert("Неверно введен день")
+    //     }
+    //     let code = `${DD}` + `${MM}` + `${YYYY}`
+    //     let тольковремя = датаивремя[1].split(":")
+    //     let часы = тольковремя[0] + ":00"
+    //     let obj = {}
+    //     let obj1 = { [часы]: { [code]: датаивремя[1] } }
+    //     Object.assign(obj, database)
+    //     for (let вр in obj1) {
+    //         for (let дт in obj1[вр]) {
+    //             if (!Object.hasOwn(obj, вр)) {
+    //                 obj[вр] = obj1[вр]
+    //             } else {
+    //                 obj[вр][дт] = obj1[вр][дт]
+    //             }
+    //         }
+    //     }
+    //     setData(obj)
+    //     alert("Данные сохранены")
+
+    // }
 
     function nextWeek() {
         let arr = week.map(item => item + 7)
@@ -482,12 +628,28 @@ export default function Calendar1() {
                     {renderCell()}
                 </Main>
                 <Footer>
+                    {/* swichOnToday */}
+
+                    {/* <span onClick={swichOnToday}>Today</span>
+                    <span onClick={getMes}>database</span> */}
+
                     <span onClick={swichOnToday}>Today</span>
                     {canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}
                 </Footer>
+                {/* {database && database.map(item => <span>{item.name}</span>)} */}
+                {/* <Footer>
+                    {database && Object.keys(database).map(item => {
+                        console.log(item)
+                        return <div>
+                            {Object.keys(database[item]).map(key => <span>{key}{" => "}{database[item][key]}</span>)}
+                        </div>
+                    })}
+                </Footer> */}
+
             </CalendarBlock>
 
         </Background>
 
     )
 }
+
