@@ -1,25 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from 'styled-components'
-import leftArrow from '../components/leftArrow.svg'
+import leftArrow from '../components/images/leftArrow.svg'
+import close from '../components/images/close.svg'
+import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import axios from "axios"
-import { doc, setDoc, getDocs, updateDoc,deleteField, collection, query } from "firebase/firestore";
+import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
 
 import { Context } from "../index";
 
 // import { collection } from 'firebase/firestore';
 // import { useCollection } from 'react-firebase-hooks/firestore';
 
-
-
-
-
 import { useCollection } from 'react-firebase-hooks/firestore';
-
-// "proxy"
-//   "private": true,
-//   "homepage": "https://guliaevae.github.io/Calendar-app/",
-//   "dependencies": {
-
 
 const Background = styled.div`
 display: flex;
@@ -28,6 +20,7 @@ background:black ;
 flex-flow: column nowrap;
 height: 100vh; 
 width: 100vw ; 
+justify-content:center ;
 `
 
 const CalendarBlock = styled.div`
@@ -40,23 +33,59 @@ position:relative ;
 `
 
 const Title = styled.div`
+@font-face {
+  font-family: 'Roboto Condensed';
+  src: url(${RobotoWoff2}) format('ttf');
+       
+}
+
 height: 10vh;
-background:white ;
+background:rgba(124, 124, 124, 1) ;
+color:white ;
 display:flex ;
 flex: 0 0 100px;
 justify-content:space-between ;
 align-items:center ;
 padding-left:2.5vw ;
 padding-right:2.5vw ;
-font-size:2.5vh; 
-`
-const Days = styled.div`
-height: 5vh;
-background:rgba(245, 245, 245, 1) ;
-box-shadow:inset 0 1px rgba(231, 231, 231, 1) ;
+font-size:2.7vh; 
+font-family: 'Roboto Condensed' ;
+
+
 `
 
-const Month = styled(Days)`
+
+const Secword = styled.span`
+color: rgba(7, 195, 255, 1);
+`
+const Wirstword = styled(Secword)`
+color: white;
+`
+
+const Hr1 = styled.hr`
+border: none;
+border-bottom: 1px solid white;
+`
+
+const Hr2 = styled.hr`
+border: none;
+border-top: 1px solid rgba(7, 195, 255, 1);
+
+`
+
+const Days = styled.div`
+height: 4vh;
+background:rgba(124, 124, 124, 1);
+/* box-shadow:inset 0 1px rgba(231, 231, 231, 1) ; */
+@font-face {
+  font-family: 'Roboto Condensed';
+  src: url(${RobotoWoff2}) format('ttf');
+       
+}
+font-family: 'Roboto Condensed' ;
+`
+
+const Month = styled(Days)` 
 box-shadow:inset 0 -1px rgba(231, 231, 231, 1) ;
 display:flex ;
 justify-content: space-between ;
@@ -71,14 +100,15 @@ padding-right:40px ;
 `
 
 const Main = styled.div`
-max-height:75vh ;
+padding-top:1.2vh ;
+max-height:75.9vh ;
 background:white ;
 overflow-y:scroll;
 ::-webkit-scrollbar { width: 0; }
 `
 
 const RedText = styled.span`
-color: red;
+color: rgba(7, 195, 255, 1);
 font-size:2.7vh ;
 `
 
@@ -88,8 +118,9 @@ justify-content:space-between ;
 padding-left:2vw ;
 padding-right:2vw ;
 align-items:center ;
-color:red ;
+color:white ;
 font-size:2.2vh ;
+height:5vh ;
 `
 
 const WeekDayWithDay = styled.div`
@@ -134,18 +165,25 @@ height:2vh;
 display:flex ;
 align-items:center ;
 justify-content:center ;
+color: white;
 `
 
 const TodayFrame = styled(DayFrame)`
-background-color: red;  
+background-color: rgba(7, 195, 255, 1);  
 border-radius:50%;
-box-shadow: 0 0 0 0.2vh red;
+box-shadow: 0 0 0 0.2vh rgba(7, 195, 255, 1);
+color: black;
 `
 
 const DayTitle = styled.div`
-font-size:2vh; 
-
+color: white;
+/* font-size:2vh;  */
 `
+const TodayDayTitle = styled(DayTitle)`
+color: rgba(7, 195, 255, 1);
+`
+
+
 
 const WeeksArrows = styled.div`
 position:absolute ;
@@ -169,29 +207,110 @@ height:5vh;
     opacity:1 ;  
 }
 `
+const Close = styled.img`
+width:30px ;
+height:30px;
+filter: invert(100%);
+&:hover{
+    filter: invert(0);
+}
+&:active{
+    filter: invert(0); 
+}
+`
+
+const AlertWindow = styled.div`
+position:absolute ;
+width:400px ;
+height:200px ;
+background:rgba(0, 0, 0, 0.47) ;
+border-radius:20px ;
+z-index:2 ;
+display:flex ;
+justify-content:space-between ;
+/* padding-left:2vw ;
+padding-right:2vw ; */
+align-items:center ;
+flex-direction:column ;
+
+@media (max-width: 740px) { 
+    width: 65vw;
+    height: 35vh; 
+  }
+`
+const HeaderForAlert = styled.div`
+height: 15%;
+width:90% ;
+
+display:flex ;
+/* color: white; */
+/* padding: 0 1vw; */
+margin-top:10px ;
+
+justify-content:space-between ;
+align-items:center ;
+`
+
+const DateAndTimeInAlert = styled.div`
+height: 90%;
+padding-left:10px ;
+width:86% ;
+background:white ;
+border-radius:5px;
+box-shadow: 0 0 2px 1px black;
+font-size:2.2vh ;
+display: flex;
+align-items:center ;
+`
+
+const MainForAlert = styled.div`
+font-size:2.2vh ;
+height: 55%;
+width: 85%;
+background:white ;
+border-radius:10px ;
+padding: 1vh 1vw;
+box-shadow: 0 0 2px 1px black;
+margin-top:5px ;
+`
+const FooterForAlert = styled.div`
+font-size:2.2vh ;
+height: auto;
+/* padding-left:2vw ;
+padding-right:2vw ; */
+margin-bottom:5px;
+
+display:flex ;
+flex-direction:row ;
+justify-content:space-between ;
+align-items:center ;
+width:90% ;
+color:white ;
+/* font-size:2.5vh ; */
+/* background:blue ;
+border-radius:20px; */
+/* box-shadow:inset 0 1px 0 ; */
+`
+
+
 
 export default function Calendar1() {
 
     const { firebaseApp, firestore } = useContext(Context)
-    // const [database] = useCollection(
-    //     firestore.collection('cities')
-    // )
 
     const [cutout, setout] = useState(true)
+    const [activeAlert, setAlert] = useState(false)
 
-    let alldata = collection(firestore, 'dates&times')
-    console.log("alldata", alldata)
-    
-    const [value, loading] = useCollection(collection(firestore, 'dates&times'),{
-        snapshotListenOptions: { includeMetadataChanges: true },
-      })
-    console.log("value", value)
+    // let alldata = collection(firestore, 'dates&times')
+    // console.log("alldata", alldata)
 
-      
+    // const [value, loading] = useCollection(collection(firestore, 'dates&times'),{
+    //     snapshotListenOptions: { includeMetadataChanges: true },
+    //   })
+    // console.log("value", value)
 
 
-    
-   
+    const [inputValue, setInputValue] = useState('')
 
     const [database, setData] = useState({})
 
@@ -200,57 +319,20 @@ export default function Calendar1() {
     }, [cutout])
 
     async function getMes() {
-
         let p1 = {}
-
         let mes = await getDocs(query(collection(firestore, "dates&times")))
-        // console.log(mes)
         mes.forEach((doc) => {
             console.log(doc.id, "=>", doc.data())
             p1[doc.id] = doc.data()
-            // for(let key in doc.data()){
-            //     p1[doc.id] = doc.data()[key]
-            // }
-
         })
-        console.log("p1", p1)
         setData(p1)
-        console.log("state", database)
-        
-
     }
-
 
     const [week, setWeek] = useState([0, 7])
     const [swichOn, setsw] = useState([true, 0])
-    // const [database, setData] = useState({
-    //     "00:00": {
-    //         162022: "00:15:00",
-    //     },
-    //     "03:00": {
-    //         662022: "03:30:00",
-    //         2062022: "03:20:00"
-    //     },
-    //     "05:00": {
-    //         162022: "05:10:00",
-    //         562022: "05:10:00",
-    //         962022: "05:10:00"
-    //     }
-
-    // })
     const [canDelete, setCanDelete] = useState([false, 0, 0])
     const [today] = useState(new Date())
     const [activeCell, setActive] = useState([0, 0])
-
-
-
-
-
-
-
-
-
-
 
     function renderCell() {
         let helpArray = []
@@ -272,7 +354,7 @@ export default function Calendar1() {
                 </StyledForGridCellWithTimes>
                 {helpArray.map(item => {
                     return <StyledForGridCell onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
-                        <BackForCell bg={checkData(times, item)} />
+                        <BackForCell id="gridCell" bg={checkData(times, item)} />
                     }
                     </StyledForGridCell>
                 })}
@@ -280,13 +362,13 @@ export default function Calendar1() {
         })
 
         function checkData(time, item) {
-            if (activeCell[0] === time && activeCell[1] === item) {
-                return "rgba(115, 146, 255, 1)"
-            }
-            if (database[time] && database[time][item]) {
-
-                return "rgba(188, 195, 255, 1)"
-            } else return "white"
+                if (activeCell[0] === time && activeCell[1] === item) {
+                    return "rgba(7, 195, 255, 1)"
+                }
+                if (database[time] && database[time][item]) {
+    
+                    return "rgba(124, 124, 124, 1)"
+                } else return "white"
         }
 
         return (
@@ -320,33 +402,25 @@ export default function Calendar1() {
         'F'
     ]
 
-
-
-
-
-
-
-
-
     let titleOfWeeksDay = []
 
 
     function canDeleteOrNot(time, code, e) {
-
-        if (database[time] && database[time][code]) {
-            alert(database[time][code])
-            setActive([time, code])
-            setCanDelete([true, time, code])
-        } else {
-            setCanDelete([false, time, code])
-            setActive([0, 0])
+        if(activeAlert===false){
+            if (database[time] && database[time][code]) {
+                // alert(database[time][code])
+                setActive([time, code])
+                setCanDelete([true, time, code])
+                setAlert(true)
+            } else {
+                setCanDelete([false, time, code])
+                setActive([0, 0])
+            }
         }
     }
 
-   async function deleteData(time, code) {
-        // let cloneDatabase = Object.assign({}, database);
-        // delete cloneDatabase[time][code]
-        // setData(cloneDatabase)
+    async function deleteData(time, code) {
+        setAlert(false)
         await updateDoc(doc(firestore, 'dates&times', time), {
             [code]: deleteField()
         });
@@ -414,7 +488,6 @@ export default function Calendar1() {
                             setWeek(arr1)
                             setsw([false, 0])
                         }
-
                     }
                 }
             } else {
@@ -430,13 +503,10 @@ export default function Calendar1() {
             }
             m = theDate.getMonth()
             y = theDate.getFullYear()
-
         }
-
         nextDay()
         return { "Days": arr, "Month": m, "Year": y }
     }
-
 
     function swichOnToday() {
         setsw([true, 0])
@@ -444,7 +514,7 @@ export default function Calendar1() {
 
     async function addNewInterview() {
 
-        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-01 00:10:00');
+        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()} 00:10:00`);
         let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
         if (eventTime.match(regexp)[0] !== eventTime) {
             return alert("Данные введены неверно")
@@ -491,92 +561,32 @@ export default function Calendar1() {
                 return a = false
             }
         })
-
-         
-
         sendMes(a, часы, code, датаивремя[1])
-
-
-
-
-
-
-
-
-
     }
 
     async function sendMes(nw, time, code, data) {
-
         if (nw === true) {
             // добавление времени
             alert("отсутствует")
-            await setDoc(doc(firestore, "dates&times", time), {
-                [code]: [data],
-
-            }).then(alert("Данные изменены"))
-
+            setNewData(time, code, data)
         } else {
-           
-
-
-             // добавление дня к времени
-             alert("присутствует")
-             await updateDoc(doc(firestore, "dates&times", time), {
-                 [code]: [data],
- 
-             }).then(alert("Данные изменены"))
+            // добавление дня к времени
+            alert("присутствует")
+            updateData(time, code, data)
         }
-
-        setout(!cutout)
-
-
-
-
-
     }
 
-    // function addNewInterview() {
+    async function setNewData(time, code, data){
+        await setDoc(doc(firestore, "dates&times", time), {
+            [code]: [data],
+        }).then(getMes)
+    }
 
-    //     let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', '2022-07-04 05:10:00');
-    //     let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
-    //     if (eventTime.match(regexp)[0] !== eventTime) {
-    //         return alert("Данные введены неверно")
-    //     }
-    //     let датаивремя = eventTime.split(" ")
-    //     let толькодата = датаивремя[0].split("-")
-    //     let YYYY
-    //     let MM
-    //     let DD
-    //     if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
-    //     if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
-    //     if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
-    //     if (MM + 1 > 12) {
-    //         return alert("Неверно введен месяц")
-    //     }
-    //     let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
-    //     if (DD > helpdate) {
-    //         return alert("Неверно введен день")
-    //     }
-    //     let code = `${DD}` + `${MM}` + `${YYYY}`
-    //     let тольковремя = датаивремя[1].split(":")
-    //     let часы = тольковремя[0] + ":00"
-    //     let obj = {}
-    //     let obj1 = { [часы]: { [code]: датаивремя[1] } }
-    //     Object.assign(obj, database)
-    //     for (let вр in obj1) {
-    //         for (let дт in obj1[вр]) {
-    //             if (!Object.hasOwn(obj, вр)) {
-    //                 obj[вр] = obj1[вр]
-    //             } else {
-    //                 obj[вр][дт] = obj1[вр][дт]
-    //             }
-    //         }
-    //     }
-    //     setData(obj)
-    //     alert("Данные сохранены")
-
-    // }
+    async function updateData(time, code, data){
+        await updateDoc(doc(firestore, "dates&times", time), {
+            [code]: [data],
+        }).then(getMes)
+    }
 
     function nextWeek() {
         let arr = week.map(item => item + 7)
@@ -588,11 +598,21 @@ export default function Calendar1() {
         setWeek(arr)
     }
 
+    function clockScreen(e) {
+        // if (e.target.className !== "alert" && activeAlert) { setAlert(false) }
+        if (e.target.id === "close") { setAlert(false) }
+    }
+
+    function handleChange(e){
+        setInputValue(e.target.value)
+        console.log(inputValue)
+    }
+
     return (
-        <Background>
+        <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock>
                 <Title >
-                    <span onClick={prevWeek}>Interview Calendar</span>
+                    <span onClick={prevWeek}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
                     <RedText onClick={addNewInterview}>+</RedText>
                 </Title>
                 <Days>
@@ -601,13 +621,11 @@ export default function Calendar1() {
                             if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
 
                                 return <WeekDayWithDay >
-                                    <DayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</DayTitle>
+                                    <TodayDayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</TodayDayTitle>
                                     <TodayFrame>{item}</TodayFrame>
                                 </WeekDayWithDay>
                             } else {
                                 return <WeekDayWithDay >
-
-
                                     <DayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</DayTitle>
                                     <DayFrame >{item}</DayFrame>
                                 </WeekDayWithDay>
@@ -621,33 +639,36 @@ export default function Calendar1() {
                 </Days>
                 <Month>
                     <RedText onClick={prevMonth}>{"<"}</RedText>
-                    {`${months[GetDays()["Month"]]} ${GetDays()["Year"]} `}
+                    <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
                     <RedText onClick={nextMonth}>{">"}</RedText>
                 </Month>
                 <Main>
                     {renderCell()}
                 </Main>
                 <Footer>
-                    {/* swichOnToday */}
-
-                    {/* <span onClick={swichOnToday}>Today</span>
-                    <span onClick={getMes}>database</span> */}
-
                     <span onClick={swichOnToday}>Today</span>
-                    {canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}
+                    <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
                 </Footer>
-                {/* {database && database.map(item => <span>{item.name}</span>)} */}
-                {/* <Footer>
-                    {database && Object.keys(database).map(item => {
-                        console.log(item)
-                        return <div>
-                            {Object.keys(database[item]).map(key => <span>{key}{" => "}{database[item][key]}</span>)}
-                        </div>
-                    })}
-                </Footer> */}
-
             </CalendarBlock>
-
+            {activeAlert && <AlertWindow  className="alert">
+                <HeaderForAlert>
+                    <DateAndTimeInAlert>
+                    {activeCell[0]} => {activeCell[1]} => {database[activeCell[0]][activeCell[1]]}
+                    </DateAndTimeInAlert>
+                    
+                    <Close id="close" onClick={()=>setAlert(false)} src={close} ></Close>
+                </HeaderForAlert>
+                <MainForAlert>
+                    <form>
+                    <input type="text" onChange={(e)=>handleChange(e)} ></input>
+                    </form>
+                   Данные: {database[activeCell[0]][activeCell[1]]}
+                </MainForAlert>
+                <FooterForAlert>
+                    <span onClick={()=>updateData(activeCell[0],activeCell[1], inputValue )}>Update</span>
+                    <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
+                </FooterForAlert>
+            </AlertWindow>}
         </Background>
 
     )
