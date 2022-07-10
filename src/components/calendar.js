@@ -100,8 +100,8 @@ padding-right:40px ;
 `
 
 const Main = styled.div`
-padding-top:1.2vh ;
-max-height:75.9vh ;
+padding-top:2vh ;
+max-height:75vh ;
 background:white ;
 overflow-y:scroll;
 ::-webkit-scrollbar { width: 0; }
@@ -192,7 +192,7 @@ height:100% ;
 display:flex ;
 align-items:center ;
 padding-left:1vw ;
-padding-top:0.5vh ;
+/* padding-top:1.5vh ; */
 `
 
 const Arrow = styled.img`
@@ -228,8 +228,6 @@ border-radius:20px ;
 z-index:2 ;
 display:flex ;
 justify-content:space-between ;
-/* padding-left:2vw ;
-padding-right:2vw ; */
 align-items:center ;
 flex-direction:column ;
 
@@ -241,12 +239,8 @@ flex-direction:column ;
 const HeaderForAlert = styled.div`
 height: 15%;
 width:90% ;
-
 display:flex ;
-/* color: white; */
-/* padding: 0 1vw; */
 margin-top:10px ;
-
 justify-content:space-between ;
 align-items:center ;
 `
@@ -276,8 +270,6 @@ margin-top:5px ;
 const FooterForAlert = styled.div`
 font-size:2.2vh ;
 height: auto;
-/* padding-left:2vw ;
-padding-right:2vw ; */
 margin-bottom:5px;
 
 display:flex ;
@@ -286,10 +278,6 @@ justify-content:space-between ;
 align-items:center ;
 width:90% ;
 color:white ;
-/* font-size:2.5vh ; */
-/* background:blue ;
-border-radius:20px; */
-/* box-shadow:inset 0 1px 0 ; */
 `
 
 
@@ -300,6 +288,7 @@ export default function Calendar1() {
 
     const [cutout, setout] = useState(true)
     const [activeAlert, setAlert] = useState(false)
+    const [activeAlertForCreate, setAlertForCreate] = useState(false)
 
     // let alldata = collection(firestore, 'dates&times')
     // console.log("alldata", alldata)
@@ -311,6 +300,7 @@ export default function Calendar1() {
 
 
     const [inputValue, setInputValue] = useState('')
+    let [inputForCreate, setCreateInput] = useState([])
 
     const [database, setData] = useState({})
 
@@ -362,13 +352,13 @@ export default function Calendar1() {
         })
 
         function checkData(time, item) {
-                if (activeCell[0] === time && activeCell[1] === item) {
-                    return "rgba(7, 195, 255, 1)"
-                }
-                if (database[time] && database[time][item]) {
-    
-                    return "rgba(124, 124, 124, 1)"
-                } else return "white"
+            if (activeCell[0] === time && activeCell[1] === item) {
+                return "rgba(7, 195, 255, 1)"
+            }
+            if (database[time] && database[time][item]) {
+
+                return "rgba(124, 124, 124, 1)"
+            } else return "white"
         }
 
         return (
@@ -406,9 +396,9 @@ export default function Calendar1() {
 
 
     function canDeleteOrNot(time, code, e) {
-        if(activeAlert===false){
+        if (activeAlert === false) {
             if (database[time] && database[time][code]) {
-                // alert(database[time][code])
+                
                 setActive([time, code])
                 setCanDelete([true, time, code])
                 setAlert(true)
@@ -514,7 +504,7 @@ export default function Calendar1() {
 
     async function addNewInterview() {
 
-        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()} 00:10:00`);
+        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} 00:10:00`);
         let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
         if (eventTime.match(regexp)[0] !== eventTime) {
             return alert("Данные введены неверно")
@@ -537,20 +527,7 @@ export default function Calendar1() {
         let code = `${DD}` + `${MM}` + `${YYYY}`
         let тольковремя = датаивремя[1].split(":")
         let часы = тольковремя[0] + ":00"
-        // let obj = {}
-        // let obj1 = { [часы]: { [code]: датаивремя[1] } }
-        // Object.assign(obj, database)
-        // for (let вр in obj1) {
-        //     for (let дт in obj1[вр]) {
-        //         if (!Object.hasOwn(obj, вр)) {
-        //             obj[вр] = obj1[вр]
-        //         } else {
-        //             obj[вр][дт] = obj1[вр][дт]
-        //         }
-        //     }
-        // }
-        // setData(obj)
-        // alert("Данные сохранены")
+
 
         let a = true
         Object.keys(database).forEach(key => {
@@ -574,15 +551,18 @@ export default function Calendar1() {
             alert("присутствует")
             updateData(time, code, data)
         }
+        setCreateInput([])
+        setAlertForCreate(false)
     }
 
-    async function setNewData(time, code, data){
+
+    async function setNewData(time, code, data) {
         await setDoc(doc(firestore, "dates&times", time), {
             [code]: [data],
         }).then(getMes)
     }
 
-    async function updateData(time, code, data){
+    async function updateData(time, code, data) {
         await updateDoc(doc(firestore, "dates&times", time), {
             [code]: [data],
         }).then(getMes)
@@ -600,20 +580,69 @@ export default function Calendar1() {
 
     function clockScreen(e) {
         // if (e.target.className !== "alert" && activeAlert) { setAlert(false) }
-        if (e.target.id === "close") { setAlert(false) }
+        if (e.target.id === "close") {
+             setAlert(false)
+             setAlertForCreate(false)
+            }
     }
 
-    function handleChange(e){
+    function handleChange(e) {
         setInputValue(e.target.value)
         console.log(inputValue)
     }
+
+    function handleChange1(e) {
+
+
+
+
+
+        if (e.target.type === "time") {
+            inputForCreate[0] = e.target.value
+            let тольковремя = e.target.value.split(":")
+            let часы = тольковремя[0] + ":00"
+            inputForCreate[0] = часы
+
+
+
+            inputForCreate[3] = true
+            Object.keys(database).forEach(key => {
+                if (key === часы) {
+                    return inputForCreate[3] = false
+                }
+            })
+            // alert(inputForCreate)
+        }
+        if (e.target.type === "date") {
+            let толькодата = e.target.value.split("-")
+            let YYYY; let MM; let DD
+            if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
+            if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
+            if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
+            let code = `${DD}` + `${MM}` + `${YYYY}`
+            inputForCreate[1] = code
+
+
+            // alert(inputForCreate)
+        }
+        if (e.target.type === "text") {
+            inputForCreate[2] = e.target.value
+            // alert(inputForCreate)
+        }
+
+
+        // setInputValue(e.target.value)
+        // console.log(inputValue)
+    }
+
+
 
     return (
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock>
                 <Title >
                     <span onClick={prevWeek}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
-                    <RedText onClick={addNewInterview}>+</RedText>
+                    <RedText onClick={()=>setAlertForCreate(true)}>+</RedText>
                 </Title>
                 <Days>
                     <StyledForGrid>
@@ -650,23 +679,66 @@ export default function Calendar1() {
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
                 </Footer>
             </CalendarBlock>
-            {activeAlert && <AlertWindow  className="alert">
+            {activeAlert && <AlertWindow className="alert">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
-                    {activeCell[0]} => {activeCell[1]} => {database[activeCell[0]][activeCell[1]]}
+                        {activeCell[0]} => {activeCell[1]}
+                        {/* {database[activeCell[0]][activeCell[1]]} */}
                     </DateAndTimeInAlert>
-                    
-                    <Close id="close" onClick={()=>setAlert(false)} src={close} ></Close>
+
+                    <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
+                    
+                    Данные: {database[activeCell[0]][activeCell[1]]}
                     <form>
-                    <input type="text" onChange={(e)=>handleChange(e)} ></input>
+                        {/* <input type="time" value={activeCell[0]} onChange={(e) => handleChange1(e)} ></input> */}
+                        {/* <input type="date" onChange={(e) => handleChange1(e)} ></input> */}
+                        <input type="text" onChange={(e) => handleChange(e)} ></input>
+                        {/* <input type="button" value="Create" onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])} ></input> */}
                     </form>
-                   Данные: {database[activeCell[0]][activeCell[1]]}
+
                 </MainForAlert>
                 <FooterForAlert>
                     <span onClick={()=>updateData(activeCell[0],activeCell[1], inputValue )}>Update</span>
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
+
+
+
+
+                </FooterForAlert>
+            </AlertWindow>}
+
+
+
+            {/* Добавление через + */}
+            {activeAlertForCreate && <AlertWindow className="alert">
+                <HeaderForAlert>
+                    <DateAndTimeInAlert>
+                        Введите время
+                        <form>
+                            <input type="time" onChange={(e) => handleChange1(e)} ></input>
+                        </form>
+                    </DateAndTimeInAlert>
+
+                    <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
+                </HeaderForAlert>
+                <MainForAlert>
+                    Введите дату и текст
+                    <form>
+                        <input type="date" onChange={(e) => handleChange1(e)} ></input>
+                        <input type="text" onChange={(e) => handleChange1(e)} ></input>
+                        {/* <input type="button" value="Create" onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])} ></input> */}
+                    </form>
+
+                </MainForAlert>
+                <FooterForAlert>
+                    <span onClick={()=>sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])}>Create</span>
+                    {/* <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword> */}
+
+
+
+
                 </FooterForAlert>
             </AlertWindow>}
         </Background>
