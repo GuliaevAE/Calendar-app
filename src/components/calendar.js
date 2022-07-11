@@ -8,6 +8,9 @@ import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from 
 
 import { Context } from "../index";
 
+import TextareaAutosize from 'react-textarea-autosize';
+
+
 // import { collection } from 'firebase/firestore';
 // import { useCollection } from 'react-firebase-hooks/firestore';
 
@@ -21,6 +24,7 @@ flex-flow: column nowrap;
 height: 100vh; 
 width: 100vw ; 
 justify-content:center ;
+
 `
 
 const CalendarBlock = styled.div`
@@ -29,6 +33,7 @@ position:relative ;
 
 @media (max-width: 740px) { 
     width:100vw ;
+    
   }
 `
 
@@ -50,6 +55,7 @@ padding-left:2.5vw ;
 padding-right:2.5vw ;
 font-size:2.7vh; 
 font-family: 'Roboto Condensed' ;
+
 
 
 `
@@ -75,6 +81,7 @@ border-top: 1px solid rgba(7, 195, 255, 1);
 
 const Days = styled.div`
 height: 4vh;
+box-sizing:border-box ;
 background:rgba(124, 124, 124, 1);
 /* box-shadow:inset 0 1px rgba(231, 231, 231, 1) ; */
 @font-face {
@@ -93,14 +100,14 @@ align-items:center ;
 padding-left:95px ;
 font-size:2.2vh; 
 padding-right:40px ;
-@media (max-width: 740px) { 
+/* @media (max-width: 740px) { 
     padding-left:13.5vw ;
     padding-right:5.5vw; 
-  }
+  } */
 `
 
 const Main = styled.div`
-padding-top:2vh ;
+padding-top:1.9vh ;
 max-height:75vh ;
 background:white ;
 overflow-y:scroll;
@@ -140,6 +147,7 @@ position: relative ;
 `
 
 const StyledForGridCell = styled.div`
+/* box-sizing:border-box ; */
 border-top: 1px solid rgba(190, 190, 191, 1);
 border-right: 1px solid rgba(190, 190, 191, 1);
 padding:3px ;
@@ -192,6 +200,7 @@ height:100% ;
 display:flex ;
 align-items:center ;
 padding-left:1vw ;
+box-sizing:border-box ;
 /* padding-top:1.5vh ; */
 `
 
@@ -222,7 +231,7 @@ filter: invert(100%);
 const AlertWindow = styled.div`
 position:absolute ;
 width:400px ;
-height:200px ;
+/* height:200px ; */
 background:rgba(0, 0, 0, 0.47) ;
 border-radius:20px ;
 z-index:2 ;
@@ -232,8 +241,8 @@ align-items:center ;
 flex-direction:column ;
 
 @media (max-width: 740px) { 
-    width: 65vw;
-    height: 35vh; 
+    width: 55vw;
+    /* height: 35vh;  */
   }
 `
 const HeaderForAlert = styled.div`
@@ -249,9 +258,9 @@ const DateAndTimeInAlert = styled.div`
 height: 90%;
 padding-left:10px ;
 width:86% ;
-background:white ;
+background:rgba(189, 189, 189, 1) ;
 border-radius:5px;
-box-shadow: 0 0 2px 1px black;
+/* box-shadow: 0 0 2px 1px black; */
 font-size:2.2vh ;
 display: flex;
 align-items:center ;
@@ -261,14 +270,31 @@ const MainForAlert = styled.div`
 font-size:2.2vh ;
 height: 55%;
 width: 85%;
-background:white ;
+/* background:rgba(189, 189, 189, 1) ; */
 border-radius:10px ;
 padding: 1vh 1vw;
-box-shadow: 0 0 2px 1px black;
+/* box-shadow: 0 0 2px 1px black; */
 margin-top:5px ;
+display:flex ;
+flex-direction:column ;
+justify-content:center ;
+
+textarea{
+    border:none ;
+    /* height:100% ; */
+    /* min-height: 30px;
+    max-height: 200px; */
+    width: 100%;
+    /* margin-right:1vw ; */
+    resize:none;
+    ::placeholder{
+    color:black;
+    background:green ;
+}
+}
 `
 const FooterForAlert = styled.div`
-font-size:2.2vh ;
+/* font-size:2.2vh ; */
 height: auto;
 margin-bottom:5px;
 
@@ -283,6 +309,8 @@ color:white ;
 
 
 export default function Calendar1() {
+    const [xANDx, setxANDx] = useState([])
+
 
     const { firebaseApp, firestore } = useContext(Context)
 
@@ -398,8 +426,9 @@ export default function Calendar1() {
     function canDeleteOrNot(time, code, e) {
         if (activeAlert === false) {
             if (database[time] && database[time][code]) {
-                
+
                 setActive([time, code])
+                setInputValue(database[time][code])
                 setCanDelete([true, time, code])
                 setAlert(true)
             } else {
@@ -542,13 +571,14 @@ export default function Calendar1() {
     }
 
     async function sendMes(nw, time, code, data) {
+        // alert(nw)
         if (nw === true) {
             // добавление времени
-            alert("отсутствует")
+            // alert("отсутствует")
             setNewData(time, code, data)
         } else {
             // добавление дня к времени
-            alert("присутствует")
+            // alert("присутствует")
             updateData(time, code, data)
         }
         setCreateInput([])
@@ -563,9 +593,12 @@ export default function Calendar1() {
     }
 
     async function updateData(time, code, data) {
+        // if (inputValue !== '') {
         await updateDoc(doc(firestore, "dates&times", time), {
             [code]: [data],
         }).then(getMes)
+        // }
+
     }
 
     function nextWeek() {
@@ -578,12 +611,71 @@ export default function Calendar1() {
         setWeek(arr)
     }
 
+    function screen(e) {
+        console.log(e.type)
+        console.log(e.target)
+    }
+
+    /////////движения мыши 
+    function dragStart(e) {
+        console.log('drag start')
+        console.log('clientX', e.clientX)
+        xANDx[0] = e.clientX
+    }
+    function move(e) {
+        //    console.log('move')
+
+    }
+    function dragEnd(e) {
+        console.log('drag end')
+        console.log('clientX', e.clientX)
+        if (e.clientX > xANDx[0] && (e.clientX / xANDx[0]) >= 1.5) {
+            // alert("вправо")
+            prevWeek()
+        }
+        if (e.clientX < xANDx[0] && (xANDx[0] / e.clientX) >= 1.5) {
+            // alert("влево")
+            nextWeek()
+        }
+        //    console.log('clientY',e.clientY)
+    }
+
+
+
+    function dragStartOnTel(e) {
+        console.log('tel start')
+        console.log(e.touches[0].screenX)
+        xANDx[0] = e.touches[0].screenX
+    }
+    
+    function dragEndOnTel(e) {
+        console.log('tel end')
+        console.log(e.touches[0].screenX)
+        if (e.touches[0].screenX > xANDx[0] && (e.touches[0].screenX / xANDx[0]) >= 1.7) {
+            xANDx[1] = 'prev'
+        }else
+        if (e.touches[0].screenX < xANDx[0] && (xANDx[0] / e.touches[0].screenX) >= 1.7) {
+            // alert("влево")
+            xANDx[1] = 'next'
+        }
+       
+    }
+
+
+
+
+
+
     function clockScreen(e) {
         // if (e.target.className !== "alert" && activeAlert) { setAlert(false) }
+
+
+
         if (e.target.id === "close") {
-             setAlert(false)
-             setAlertForCreate(false)
-            }
+            setAlert(false)
+            setAlertForCreate(false)
+            setInputValue('')
+        }
     }
 
     function handleChange(e) {
@@ -592,12 +684,13 @@ export default function Calendar1() {
     }
 
     function handleChange1(e) {
-
+        // alert(e.target.type)
 
 
 
 
         if (e.target.type === "time") {
+
             inputForCreate[0] = e.target.value
             let тольковремя = e.target.value.split(":")
             let часы = тольковремя[0] + ":00"
@@ -625,24 +718,22 @@ export default function Calendar1() {
 
             // alert(inputForCreate)
         }
-        if (e.target.type === "text") {
+        if (e.target.type === "text" || e.target.type === "textarea") {
+
             inputForCreate[2] = e.target.value
             // alert(inputForCreate)
         }
 
-
-        // setInputValue(e.target.value)
-        // console.log(inputValue)
     }
 
 
-
+//onMouseMove={(e) => move(e)}
     return (
         <Background onClick={(e) => clockScreen(e)}>
-            <CalendarBlock>
+            <CalendarBlock  onMouseUp={(e) => dragEnd(e)} onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-                    <span onClick={prevWeek}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
-                    <RedText onClick={()=>setAlertForCreate(true)}>+</RedText>
+                    <span onClick={() => console.log(database)}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
+                    <RedText onClick={() => setAlertForCreate(true)}>+</RedText>
                 </Title>
                 <Days>
                     <StyledForGrid>
@@ -671,7 +762,7 @@ export default function Calendar1() {
                     <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
                     <RedText onClick={nextMonth}>{">"}</RedText>
                 </Month>
-                <Main>
+                <Main onMouseDown={(e) => dragStart(e)} onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={()=>{if(xANDx[1]==='next'){nextWeek()}else if(xANDx[1]==='prev'){prevWeek()}}}>
                     {renderCell()}
                 </Main>
                 <Footer>
@@ -689,18 +780,32 @@ export default function Calendar1() {
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
-                    
-                    Данные: {database[activeCell[0]][activeCell[1]]}
+                    {/* <div>
+                        <input type="checkbox" id="canUpdate" name="canUpdate" value="Изменить данные" onChange={(e) => console.log(e)} />
+                        <label for="canUpdate">Изменить данные</label>
+                    </div> */}
+
+                    <TextareaAutosize
+                        disabled={0}
+                        style={{
+                            "border-radius": "10px",
+                            "background": "rgba(189, 189, 189, 1)"
+                        }}
+                        minRows={1}
+                        maxRows={20}
+                        onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
+                    </TextareaAutosize>
+                    {/* Данные: {database[activeCell[0]][activeCell[1]]}
                     <form>
-                        {/* <input type="time" value={activeCell[0]} onChange={(e) => handleChange1(e)} ></input> */}
-                        {/* <input type="date" onChange={(e) => handleChange1(e)} ></input> */}
-                        <input type="text" onChange={(e) => handleChange(e)} ></input>
-                        {/* <input type="button" value="Create" onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])} ></input> */}
-                    </form>
+                       
+                        <textarea wrap="hard" placeholder={database[activeCell[0]][activeCell[1]]}
+                            onChange={(e) => handleChange(e)} ></textarea>
+                       
+                    </form> */}
 
                 </MainForAlert>
                 <FooterForAlert>
-                    <span onClick={()=>updateData(activeCell[0],activeCell[1], inputValue )}>Update</span>
+                    <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue)}>Update</span>
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
 
 
@@ -728,12 +833,23 @@ export default function Calendar1() {
                     <form>
                         <input type="date" onChange={(e) => handleChange1(e)} ></input>
                         <input type="text" onChange={(e) => handleChange1(e)} ></input>
+                        <TextareaAutosize
+
+                            disabled={0}
+                            style={{
+                                "border-radius": "10px",
+                                "background": "rgba(189, 189, 189, 1)"
+                            }}
+                            minRows={1}
+                            maxRows={20}
+                            onChange={(e) => handleChange1(e)}>
+                        </TextareaAutosize>
                         {/* <input type="button" value="Create" onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])} ></input> */}
                     </form>
 
                 </MainForAlert>
                 <FooterForAlert>
-                    <span onClick={()=>sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])}>Create</span>
+                    <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])}>Create</span>
                     {/* <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword> */}
 
 
