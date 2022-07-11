@@ -310,6 +310,7 @@ color:white ;
 
 export default function Calendar1() {
     const [xANDx, setxANDx] = useState([])
+    const [xANDxForTell, setxANDxForTell] = useState([])
 
 
     const { firebaseApp, firestore } = useContext(Context)
@@ -645,20 +646,24 @@ export default function Calendar1() {
     function dragStartOnTel(e) {
         console.log('tel start')
         console.log(e.touches[0].screenX)
-        xANDx[0] = e.touches[0].screenX
+        xANDxForTell[0] = e.touches[0].screenX
+        console.log(xANDxForTell)
     }
-    
+
     function dragEndOnTel(e) {
-        console.log('tel end')
+        // console.log('tel end')
         console.log(e.touches[0].screenX)
-        if (e.touches[0].screenX > xANDx[0] && (e.touches[0].screenX / xANDx[0]) >= 1.7) {
-            xANDx[1] = 'prev'
-        }else
-        if (e.touches[0].screenX < xANDx[0] && (xANDx[0] / e.touches[0].screenX) >= 1.7) {
-            // alert("влево")
-            xANDx[1] = 'next'
+        // console.log(xANDxForTell[0]>e.touches[0].screenX)
+        if (e.touches[0].screenX > xANDxForTell[0]) {
+            // alert("1")
+            console.log('sdadasda')
+            xANDxForTell[1] = 'prev'
         }
-       
+        if (e.touches[0].screenX < xANDxForTell[0] && (xANDxForTell[0] / e.touches[0].screenX) >= 1.5) {
+            // alert("влево")
+            xANDxForTell[1] = 'next'
+        }
+
     }
 
 
@@ -727,10 +732,14 @@ export default function Calendar1() {
     }
 
 
-//onMouseMove={(e) => move(e)}
+    //onMouseMove={(e) => move(e)}
+    //onMouseUp={(e) => dragEnd(e)}
+
+
+    //onMouseDown={(e) => dragStart(e)}
     return (
         <Background onClick={(e) => clockScreen(e)}>
-            <CalendarBlock  onMouseUp={(e) => dragEnd(e)} onTouchMove={(e) => dragEndOnTel(e)}>
+            <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
                     <span onClick={() => console.log(database)}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
                     <RedText onClick={() => setAlertForCreate(true)}>+</RedText>
@@ -762,7 +771,7 @@ export default function Calendar1() {
                     <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
                     <RedText onClick={nextMonth}>{">"}</RedText>
                 </Month>
-                <Main onMouseDown={(e) => dragStart(e)} onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={()=>{if(xANDx[1]==='next'){nextWeek()}else if(xANDx[1]==='prev'){prevWeek()}}}>
+                <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => {if (xANDxForTell[1] === 'next') {setxANDxForTell([]) ; nextWeek()} if (xANDxForTell[1] === 'prev') {setxANDxForTell([]); prevWeek()} }}>
                     {renderCell()}
                 </Main>
                 <Footer>
