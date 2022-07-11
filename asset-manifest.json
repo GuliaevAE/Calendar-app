@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/Calendar-app/static/css/main.073c9b0a.css",
-    "main.js": "/Calendar-app/static/js/main.c9b11537.js",
+    "main.js": "/Calendar-app/static/js/main.df07a983.js",
     "static/media/IMFellFrenchCanonSC-Regular.ttf": "/Calendar-app/static/media/IMFellFrenchCanonSC-Regular.2449dbb0ecdea307ae6e.ttf",
     "static/media/close.svg": "/Calendar-app/static/media/close.0b35c66498a9b3c25d4d474ef6ff047e.svg",
     "static/media/leftArrow.svg": "/Calendar-app/static/media/leftArrow.49c8791c6ab0e4565ce6f0fea827408f.svg",
     "index.html": "/Calendar-app/index.html",
     "main.073c9b0a.css.map": "/Calendar-app/static/css/main.073c9b0a.css.map",
-    "main.c9b11537.js.map": "/Calendar-app/static/js/main.c9b11537.js.map"
+    "main.df07a983.js.map": "/Calendar-app/static/js/main.df07a983.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.c9b11537.js"
+    "static/js/main.df07a983.js"
   ]
 }
