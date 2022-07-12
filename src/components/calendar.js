@@ -252,6 +252,9 @@ display:flex ;
 margin-top:10px ;
 justify-content:space-between ;
 align-items:center ;
+
+
+
 `
 
 const DateAndTimeInAlert = styled.div`
@@ -264,6 +267,8 @@ border-radius:5px;
 font-size:2.2vh ;
 display: flex;
 align-items:center ;
+
+
 `
 
 const MainForAlert = styled.div`
@@ -279,18 +284,31 @@ display:flex ;
 flex-direction:column ;
 justify-content:center ;
 
-textarea{
+
+
+input{
+    border-radius: 10px;
+    border: none; 
+    margin-right: 10px;
+    background:rgba(189, 189, 189, 1);
+}
+
+
+ textarea{
     border:none ;
     /* height:100% ; */
     /* min-height: 30px;
     max-height: 200px; */
     width: 100%;
+    margin: 5px auto;
     /* margin-right:1vw ; */
     resize:none;
-    ::placeholder{
+    border-radius: 10px;
+    background:rgba(189, 189, 189, 1);
+    /* ::placeholder{
     color:black;
     background:green ;
-}
+} */
 }
 `
 const FooterForAlert = styled.div`
@@ -319,13 +337,7 @@ export default function Calendar1() {
     const [activeAlert, setAlert] = useState(false)
     const [activeAlertForCreate, setAlertForCreate] = useState(false)
 
-    // let alldata = collection(firestore, 'dates&times')
-    // console.log("alldata", alldata)
-
-    // const [value, loading] = useCollection(collection(firestore, 'dates&times'),{
-    //     snapshotListenOptions: { includeMetadataChanges: true },
-    //   })
-    // console.log("value", value)
+   
 
 
     const [inputValue, setInputValue] = useState('')
@@ -385,7 +397,7 @@ export default function Calendar1() {
                 return "rgba(7, 195, 255, 1)"
             }
             if (database[time] && database[time][item]) {
-
+                
                 return "rgba(124, 124, 124, 1)"
             } else return "white"
         }
@@ -423,9 +435,16 @@ export default function Calendar1() {
 
     let titleOfWeeksDay = []
 
-
+   
     function canDeleteOrNot(time, code, e) {
         if (activeAlert === false) {
+            if (database[time] && database[time][code] && database[time][`${code}time`] ) {
+                
+                setActive([time, code, database[time][`${code}time`]])
+                setInputValue(database[time][code])
+                setCanDelete([true, time, code])
+                setAlert(true)
+            } else
             if (database[time] && database[time][code]) {
 
                 setActive([time, code])
@@ -442,7 +461,8 @@ export default function Calendar1() {
     async function deleteData(time, code) {
         setAlert(false)
         await updateDoc(doc(firestore, 'dates&times', time), {
-            [code]: deleteField()
+            [code]: deleteField(),
+            [code+"time"]:deleteField(),
         });
         setCanDelete(canDelete[0] = false)
         setActive([0, 0])
@@ -571,32 +591,35 @@ export default function Calendar1() {
         sendMes(a, часы, code, датаивремя[1])
     }
 
-    async function sendMes(nw, time, code, data) {
+    async function sendMes(nw, time, code, data, originalTime) {
         // alert(nw)
         if (nw === true) {
             // добавление времени
             // alert("отсутствует")
-            setNewData(time, code, data)
+            setNewData(time, code, data, originalTime)
         } else {
             // добавление дня к времени
             // alert("присутствует")
-            updateData(time, code, data)
+            updateData(time, code, data, originalTime)
         }
         setCreateInput([])
         setAlertForCreate(false)
     }
 
 
-    async function setNewData(time, code, data) {
+    async function setNewData(time, code, data, originalTime) {
         await setDoc(doc(firestore, "dates&times", time), {
             [code]: [data],
+            [code+"time"]:[originalTime]
         }).then(getMes)
     }
 
-    async function updateData(time, code, data) {
+    async function updateData(time, code, data, originalTime) {
         // if (inputValue !== '') {
+            console.log(time, code, data, originalTime)
         await updateDoc(doc(firestore, "dates&times", time), {
             [code]: [data],
+            [code+"time"]:originalTime,
         }).then(getMes)
         // }
 
@@ -618,50 +641,38 @@ export default function Calendar1() {
     }
 
     /////////движения мыши 
-    function dragStart(e) {
-        console.log('drag start')
-        console.log('clientX', e.clientX)
-        xANDx[0] = e.clientX
-    }
-    function move(e) {
-        //    console.log('move')
-
-    }
-    function dragEnd(e) {
-        console.log('drag end')
-        console.log('clientX', e.clientX)
-        if (e.clientX > xANDx[0] && (e.clientX / xANDx[0]) >= 1.5) {
-            // alert("вправо")
-            prevWeek()
-        }
-        if (e.clientX < xANDx[0] && (xANDx[0] / e.clientX) >= 1.5) {
-            // alert("влево")
-            nextWeek()
-        }
-        //    console.log('clientY',e.clientY)
-    }
+    // function dragStart(e) {
+    //     console.log('drag start')
+    //     console.log('clientX', e.clientX)
+    //     xANDx[0] = e.clientX
+    // }
+    // function move(e) {
+    // }
+    // function dragEnd(e) {
+    //     console.log('drag end')
+    //     console.log('clientX', e.clientX)
+    //     if (e.clientX > xANDx[0] && (e.clientX / xANDx[0]) >= 1.5) {
+    //         prevWeek()
+    //     }
+    //     if (e.clientX < xANDx[0] && (xANDx[0] / e.clientX) >= 1.5) {
+    //         nextWeek()
+    //     }
+        
+    // }
 
 
 
     function dragStartOnTel(e) {
-        console.log('tel start')
-        console.log(e.touches[0].screenX)
         xANDxForTell[0] = e.touches[0].screenX
-        console.log(xANDxForTell)
+        xANDxForTell[1] = e.touches[0].screenY
     }
 
     function dragEndOnTel(e) {
-        // console.log('tel end')
-        console.log(e.touches[0].screenX)
-        // console.log(xANDxForTell[0]>e.touches[0].screenX)
-        if (e.touches[0].screenX > xANDxForTell[0]) {
-            // alert("1")
-            console.log('sdadasda')
-            xANDxForTell[1] = 'prev'
+        if (e.touches[0].screenX > xANDxForTell[0] && (e.touches[0].screenX / xANDxForTell[0]) >= 1.7 && ((e.touches[0].screenY > xANDxForTell[1] && (e.touches[0].screenY / xANDxForTell[1]) <= 1.2) || (e.touches[0].screenY < xANDxForTell[1] && (xANDxForTell[1] / e.touches[0].screenY) <= 1.2))) {
+            xANDxForTell[2] = 'prev'
         }
-        if (e.touches[0].screenX < xANDxForTell[0] && (xANDxForTell[0] / e.touches[0].screenX) >= 1.5) {
-            // alert("влево")
-            xANDxForTell[1] = 'next'
+        if (e.touches[0].screenX < xANDxForTell[0] && (xANDxForTell[0] / e.touches[0].screenX) >= 1.7 && ((e.touches[0].screenY > xANDxForTell[1] && (e.touches[0].screenY / xANDxForTell[1]) <= 1.2) || (e.touches[0].screenY < xANDxForTell[1] && (xANDxForTell[1] / e.touches[0].screenY) <= 1.2))) {
+            xANDxForTell[2] = 'next'
         }
 
     }
@@ -672,10 +683,6 @@ export default function Calendar1() {
 
 
     function clockScreen(e) {
-        // if (e.target.className !== "alert" && activeAlert) { setAlert(false) }
-
-
-
         if (e.target.id === "close") {
             setAlert(false)
             setAlertForCreate(false)
@@ -689,19 +696,12 @@ export default function Calendar1() {
     }
 
     function handleChange1(e) {
-        // alert(e.target.type)
-
-
-
-
         if (e.target.type === "time") {
-
             inputForCreate[0] = e.target.value
             let тольковремя = e.target.value.split(":")
             let часы = тольковремя[0] + ":00"
-            inputForCreate[0] = часы
-
-
+            // inputForCreate[0] = часы
+            
 
             inputForCreate[3] = true
             Object.keys(database).forEach(key => {
@@ -709,7 +709,6 @@ export default function Calendar1() {
                     return inputForCreate[3] = false
                 }
             })
-            // alert(inputForCreate)
         }
         if (e.target.type === "date") {
             let толькодата = e.target.value.split("-")
@@ -771,7 +770,7 @@ export default function Calendar1() {
                     <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
                     <RedText onClick={nextMonth}>{">"}</RedText>
                 </Month>
-                <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => {if (xANDxForTell[1] === 'next') {setxANDxForTell([]) ; nextWeek()} if (xANDxForTell[1] === 'prev') {setxANDxForTell([]); prevWeek()} }}>
+                <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => { if (xANDxForTell[2] === 'next') { setxANDxForTell([]); nextWeek() } if (xANDxForTell[2] === 'prev') { setxANDxForTell([]); prevWeek() } }}>
                     {renderCell()}
                 </Main>
                 <Footer>
@@ -782,7 +781,7 @@ export default function Calendar1() {
             {activeAlert && <AlertWindow className="alert">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
-                        {activeCell[0]} => {activeCell[1]}
+                        {activeCell[0]} => {activeCell[1]} => {activeCell[2]}
                         {/* {database[activeCell[0]][activeCell[1]]} */}
                     </DateAndTimeInAlert>
 
@@ -814,7 +813,7 @@ export default function Calendar1() {
 
                 </MainForAlert>
                 <FooterForAlert>
-                    <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue)}>Update</span>
+                    <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue, activeCell[2])}>Update</span>
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
 
 
@@ -829,21 +828,20 @@ export default function Calendar1() {
             {activeAlertForCreate && <AlertWindow className="alert">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
-                        Введите время
-                        <form>
-                            <input type="time" onChange={(e) => handleChange1(e)} ></input>
-                        </form>
+                        <span>Заполните время, дату</span>
                     </DateAndTimeInAlert>
 
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
-                    Введите дату и текст
+                   
                     <form>
-                        <input type="date" onChange={(e) => handleChange1(e)} ></input>
-                        <input type="text" onChange={(e) => handleChange1(e)} ></input>
+                        
+                        <input type="time" onChange={(e) => handleChange1(e)} ></input>
+                        <input type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
+                        {/* <input type="text" onChange={(e) => handleChange1(e)} ></input> */}
                         <TextareaAutosize
-
+                            placeholder="и то, что хотите сохранить"
                             disabled={0}
                             style={{
                                 "border-radius": "10px",
@@ -858,7 +856,7 @@ export default function Calendar1() {
 
                 </MainForAlert>
                 <FooterForAlert>
-                    <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])}>Create</span>
+                    <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
                     {/* <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword> */}
 
 
