@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from 'styled-components'
 import leftArrow from '../components/images/leftArrow.svg'
+import Logo1 from '../components/images/Logo1.svg'
 import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import axios from "axios"
@@ -28,7 +29,7 @@ justify-content:center ;
 `
 
 const CalendarBlock = styled.div`
-width:740px ;
+width:100vw ;
 position:relative ;
 
 @media (max-width: 740px) { 
@@ -44,6 +45,10 @@ const Title = styled.div`
        
 }
 
+img{
+    height:80% ;
+}
+
 height: 10vh;
 background:rgba(124, 124, 124, 1) ;
 color:white ;
@@ -53,7 +58,10 @@ justify-content:space-between ;
 align-items:center ;
 padding-left:2.5vw ;
 padding-right:2.5vw ;
-font-size:2.7vh; 
+padding-top:1vh ;
+padding-bottom:1vh ;
+box-sizing:border-box;
+/* font-size:2.7vh;  */
 font-family: 'Roboto Condensed' ;
 
 
@@ -81,6 +89,7 @@ border-top: 1px solid rgba(7, 195, 255, 1);
 
 const Days = styled.div`
 height: 4vh;
+font-size:2.4vh;
 box-sizing:border-box ;
 background:rgba(124, 124, 124, 1);
 /* box-shadow:inset 0 1px rgba(231, 231, 231, 1) ; */
@@ -98,8 +107,9 @@ display:flex ;
 justify-content: space-between ;
 align-items:center ;
 padding-left:95px ;
-font-size:2.2vh; 
+/* font-size:16px;  */
 padding-right:40px ;
+
 /* @media (max-width: 740px) { 
     padding-left:13.5vw ;
     padding-right:5.5vw; 
@@ -108,14 +118,16 @@ padding-right:40px ;
 
 const Main = styled.div`
 padding-top:1.9vh ;
-max-height:75vh ;
+max-height:77vh ;
 background:white ;
 overflow-y:scroll;
+box-sizing:border-box;
 ::-webkit-scrollbar { width: 0; }
 `
 
 const RedText = styled.span`
-color: rgba(7, 195, 255, 1);
+/* color: rgba(7, 195, 255, 1); */
+color: white;
 font-size:2.7vh ;
 `
 
@@ -126,14 +138,17 @@ padding-left:2vw ;
 padding-right:2vw ;
 align-items:center ;
 color:white ;
-font-size:2.2vh ;
-height:5vh ;
+font-size:2.7vh ;
+/* line-height: 5vh; */
+height: 5vh;
+/* height:auto ; */
+
 `
 
 const WeekDayWithDay = styled.div`
 display:flex ;
 flex-direction:column ;
-font-size:2.1vh;
+font-size:2.2vh;
 text-align:center ;
 align-items:center ;
 position:relative ;
@@ -177,10 +192,10 @@ color: white;
 `
 
 const TodayFrame = styled(DayFrame)`
-background-color: rgba(7, 195, 255, 1);  
+/* background-color: rgba(7, 195, 255, 1);   */
 border-radius:50%;
-box-shadow: 0 0 0 0.2vh rgba(7, 195, 255, 1);
-color: black;
+/* box-shadow: 0 0 0 0.2vh rgba(7, 195, 255, 1); */
+color: rgba(7, 195, 255, 1);
 `
 
 const DayTitle = styled.div`
@@ -230,8 +245,8 @@ filter: invert(100%);
 
 const AlertWindow = styled.div`
 position:absolute ;
-width:400px ;
-/* height:200px ; */
+min-width:250px ;
+width:50%;
 background:rgba(0, 0, 0, 0.47) ;
 border-radius:20px ;
 z-index:2 ;
@@ -239,9 +254,10 @@ display:flex ;
 justify-content:space-between ;
 align-items:center ;
 flex-direction:column ;
+margin: 0 auto;
 
 @media (max-width: 740px) { 
-    width: 55vw;
+    /* width: 55vw; */
     /* height: 35vh;  */
   }
 `
@@ -263,12 +279,6 @@ padding-left:10px ;
 width:86% ;
 background:rgba(189, 189, 189, 1) ;
 border-radius:5px;
-/* box-shadow: 0 0 2px 1px black; */
-font-size:2.2vh ;
-display: flex;
-align-items:center ;
-
-
 `
 
 const MainForAlert = styled.div`
@@ -296,23 +306,15 @@ input{
 
  textarea{
     border:none ;
-    /* height:100% ; */
-    /* min-height: 30px;
-    max-height: 200px; */
     width: 100%;
     margin: 5px auto;
-    /* margin-right:1vw ; */
     resize:none;
     border-radius: 10px;
     background:rgba(189, 189, 189, 1);
-    /* ::placeholder{
-    color:black;
-    background:green ;
-} */
+  
 }
 `
 const FooterForAlert = styled.div`
-/* font-size:2.2vh ; */
 height: auto;
 margin-bottom:5px;
 
@@ -552,60 +554,18 @@ export default function Calendar1() {
         setsw([true, 0])
     }
 
-    async function addNewInterview() {
-
-        let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} 00:10:00`);
-        let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
-        if (eventTime.match(regexp)[0] !== eventTime) {
-            return alert("Данные введены неверно")
-        }
-        let датаивремя = eventTime.split(" ")
-        let толькодата = датаивремя[0].split("-")
-        let YYYY
-        let MM
-        let DD
-        if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
-        if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
-        if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
-        if (MM + 1 > 12) {
-            return alert("Неверно введен месяц")
-        }
-        let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
-        if (DD > helpdate) {
-            return alert("Неверно введен день")
-        }
-        let code = `${DD}` + `${MM}` + `${YYYY}`
-        let тольковремя = датаивремя[1].split(":")
-        let часы = тольковремя[0] + ":00"
-
-
-        let a = true
-        Object.keys(database).forEach(key => {
-            // if (key === часы && database[key].hasOwnProperty(code)) {
-            //     return a = false
-            // }
-            if (key === часы) {
-                return a = false
-            }
-        })
-        sendMes(a, часы, code, датаивремя[1])
-    }
 
     async function sendMes(nw, time, code, data, originalTime) {
-        // alert(nw)
         if (nw === true) {
             // добавление времени
-            // alert("отсутствует")
             setNewData(time, code, data, originalTime)
         } else {
             // добавление дня к времени
-            // alert("присутствует")
             updateData(time, code, data, originalTime)
         }
         setCreateInput([])
         setAlertForCreate(false)
     }
-
 
     async function setNewData(time, code, data, originalTime) {
         await setDoc(doc(firestore, "dates&times", time), {
@@ -641,27 +601,7 @@ export default function Calendar1() {
     }
 
     /////////движения мыши 
-    // function dragStart(e) {
-    //     console.log('drag start')
-    //     console.log('clientX', e.clientX)
-    //     xANDx[0] = e.clientX
-    // }
-    // function move(e) {
-    // }
-    // function dragEnd(e) {
-    //     console.log('drag end')
-    //     console.log('clientX', e.clientX)
-    //     if (e.clientX > xANDx[0] && (e.clientX / xANDx[0]) >= 1.5) {
-    //         prevWeek()
-    //     }
-    //     if (e.clientX < xANDx[0] && (xANDx[0] / e.clientX) >= 1.5) {
-    //         nextWeek()
-    //     }
-        
-    // }
-
-
-
+ 
     function dragStartOnTel(e) {
         xANDxForTell[0] = e.touches[0].screenX
         xANDxForTell[1] = e.touches[0].screenY
@@ -674,12 +614,7 @@ export default function Calendar1() {
         if (e.touches[0].screenX < xANDxForTell[0] && (xANDxForTell[0] / e.touches[0].screenX) >= 1.7 && ((e.touches[0].screenY > xANDxForTell[1] && (e.touches[0].screenY / xANDxForTell[1]) <= 1.2) || (e.touches[0].screenY < xANDxForTell[1] && (xANDxForTell[1] / e.touches[0].screenY) <= 1.2))) {
             xANDxForTell[2] = 'next'
         }
-
     }
-
-
-
-
 
 
     function clockScreen(e) {
@@ -718,29 +653,20 @@ export default function Calendar1() {
             if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
             let code = `${DD}` + `${MM}` + `${YYYY}`
             inputForCreate[1] = code
-
-
-            // alert(inputForCreate)
         }
         if (e.target.type === "text" || e.target.type === "textarea") {
 
             inputForCreate[2] = e.target.value
-            // alert(inputForCreate)
         }
 
     }
 
-
-    //onMouseMove={(e) => move(e)}
-    //onMouseUp={(e) => dragEnd(e)}
-
-
-    //onMouseDown={(e) => dragStart(e)}
     return (
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-                    <span onClick={() => console.log(database)}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span>
+                    <img src={Logo1}/>
+                    {/* <span onClick={() => console.log(database)}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span> */}
                     <RedText onClick={() => setAlertForCreate(true)}>+</RedText>
                 </Title>
                 <Days>
@@ -781,17 +707,14 @@ export default function Calendar1() {
             {activeAlert && <AlertWindow className="alert">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
-                        {activeCell[0]} => {activeCell[1]} => {activeCell[2]}
-                        {/* {database[activeCell[0]][activeCell[1]]} */}
+                        {activeCell[2]} => {activeCell[1]}
+                      
                     </DateAndTimeInAlert>
 
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
-                    {/* <div>
-                        <input type="checkbox" id="canUpdate" name="canUpdate" value="Изменить данные" onChange={(e) => console.log(e)} />
-                        <label for="canUpdate">Изменить данные</label>
-                    </div> */}
+                 
 
                     <TextareaAutosize
                         disabled={0}
@@ -803,13 +726,7 @@ export default function Calendar1() {
                         maxRows={20}
                         onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
                     </TextareaAutosize>
-                    {/* Данные: {database[activeCell[0]][activeCell[1]]}
-                    <form>
-                       
-                        <textarea wrap="hard" placeholder={database[activeCell[0]][activeCell[1]]}
-                            onChange={(e) => handleChange(e)} ></textarea>
-                       
-                    </form> */}
+                   
 
                 </MainForAlert>
                 <FooterForAlert>
@@ -836,10 +753,8 @@ export default function Calendar1() {
                 <MainForAlert>
                    
                     <form>
-                        
                         <input type="time" onChange={(e) => handleChange1(e)} ></input>
                         <input type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
-                        {/* <input type="text" onChange={(e) => handleChange1(e)} ></input> */}
                         <TextareaAutosize
                             placeholder="и то, что хотите сохранить"
                             disabled={0}
@@ -851,17 +766,10 @@ export default function Calendar1() {
                             maxRows={20}
                             onChange={(e) => handleChange1(e)}>
                         </TextareaAutosize>
-                        {/* <input type="button" value="Create" onClick={() => sendMes(inputForCreate[3], inputForCreate[0], inputForCreate[1], inputForCreate[2])} ></input> */}
                     </form>
-
                 </MainForAlert>
                 <FooterForAlert>
                     <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
-                    {/* <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword> */}
-
-
-
-
                 </FooterForAlert>
             </AlertWindow>}
         </Background>
@@ -869,3 +777,55 @@ export default function Calendar1() {
     )
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////oldCode
+// async function addNewInterview() {
+
+    //     let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} 00:10:00`);
+    //     let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
+    //     if (eventTime.match(regexp)[0] !== eventTime) {
+    //         return alert("Данные введены неверно")
+    //     }
+    //     let датаивремя = eventTime.split(" ")
+    //     let толькодата = датаивремя[0].split("-")
+    //     let YYYY
+    //     let MM
+    //     let DD
+    //     if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
+    //     if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
+    //     if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
+    //     if (MM + 1 > 12) {
+    //         return alert("Неверно введен месяц")
+    //     }
+    //     let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
+    //     if (DD > helpdate) {
+    //         return alert("Неверно введен день")
+    //     }
+    //     let code = `${DD}` + `${MM}` + `${YYYY}`
+    //     let тольковремя = датаивремя[1].split(":")
+    //     let часы = тольковремя[0] + ":00"
+
+
+    //     let a = true
+    //     Object.keys(database).forEach(key => {
+    //         // if (key === часы && database[key].hasOwnProperty(code)) {
+    //         //     return a = false
+    //         // }
+    //         if (key === часы) {
+    //             return a = false
+    //         }
+    //     })
+    //     sendMes(a, часы, code, датаивремя[1])
+    // }
