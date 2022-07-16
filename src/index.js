@@ -5,6 +5,7 @@ import App from './App';
 import firebase from 'firebase/compat/app'
 // import { initializeApp } from "firebase/app";
 import 'firebase/compat/firestore'
+import 'firebase/compat/auth';
 import {getFirestore} from 'firebase/firestore'
 
 
@@ -26,11 +27,13 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 export const Context = createContext(null)
 const firestore = getFirestore(firebaseApp)
+const auth = firebase.auth(firebaseApp)
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Context.Provider value={{firebaseApp, firestore}}>
+    <Context.Provider value={{auth, firebaseApp, firestore}}>
     <App />
     </Context.Provider>
     

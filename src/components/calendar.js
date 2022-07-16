@@ -6,16 +6,10 @@ import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import axios from "axios"
 import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
-
 import { Context } from "../index";
-
 import TextareaAutosize from 'react-textarea-autosize';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
-
-// import { collection } from 'firebase/firestore';
-// import { useCollection } from 'react-firebase-hooks/firestore';
-
-import { useCollection } from 'react-firebase-hooks/firestore';
 
 const Background = styled.div`
 display: flex;
@@ -25,7 +19,6 @@ flex-flow: column nowrap;
 height: 100vh; 
 width: 100vw ; 
 justify-content:center ;
-
 `
 
 const CalendarBlock = styled.div`
@@ -33,21 +26,41 @@ width:100vw ;
 position:relative ;
 
 @media (max-width: 740px) { 
-    width:100vw ;
-    
+    width:100vw ; 
   }
 `
 
 const Title = styled.div`
 @font-face {
   font-family: 'Roboto Condensed';
-  src: url(${RobotoWoff2}) format('ttf');
-       
+  src: url(${RobotoWoff2}) format('ttf'); 
 }
 
-img{
-    height:80% ;
+ button{
+    border:3px solid rgba(7, 195, 255, 1);
+    border-radius:10px ;
+    background: transparent ;
+    color: rgba(7, 195, 255, 1);
+    height:5vh ;
+    width:80px ;
+    margin-left:2vw;
 }
+
+@media (max-width: 410px) { 
+    button{
+    height:4vh ;
+    width:55px ;
+    margin-left:1vw;
+    }
+  }
+
+  @media (max-width: 350px) { 
+    button{
+    
+    width:55px ;
+    margin:3px 6vw;
+    }
+  }
 
 height: 10vh;
 background:rgba(124, 124, 124, 1) ;
@@ -61,13 +74,15 @@ padding-right:2.5vw ;
 padding-top:1vh ;
 padding-bottom:1vh ;
 box-sizing:border-box;
-/* font-size:2.7vh;  */
 font-family: 'Roboto Condensed' ;
-
-
-
+`
+const TitleLogo = styled.img`
+height:80% ;
 `
 
+const TitleButton = styled.img`
+height:10%;
+`
 
 const Secword = styled.span`
 color: rgba(7, 195, 255, 1);
@@ -107,13 +122,7 @@ display:flex ;
 justify-content: space-between ;
 align-items:center ;
 padding-left:95px ;
-/* font-size:16px;  */
 padding-right:40px ;
-
-/* @media (max-width: 740px) { 
-    padding-left:13.5vw ;
-    padding-right:5.5vw; 
-  } */
 `
 
 const Main = styled.div`
@@ -126,7 +135,6 @@ box-sizing:border-box;
 `
 
 const RedText = styled.span`
-/* color: rgba(7, 195, 255, 1); */
 color: white;
 font-size:2.7vh ;
 `
@@ -139,10 +147,7 @@ padding-right:2vw ;
 align-items:center ;
 color:white ;
 font-size:2.7vh ;
-/* line-height: 5vh; */
 height: 5vh;
-/* height:auto ; */
-
 `
 
 const WeekDayWithDay = styled.div`
@@ -162,7 +167,6 @@ position: relative ;
 `
 
 const StyledForGridCell = styled.div`
-/* box-sizing:border-box ; */
 border-top: 1px solid rgba(190, 190, 191, 1);
 border-right: 1px solid rgba(190, 190, 191, 1);
 padding:3px ;
@@ -192,15 +196,12 @@ color: white;
 `
 
 const TodayFrame = styled(DayFrame)`
-/* background-color: rgba(7, 195, 255, 1);   */
 border-radius:50%;
-/* box-shadow: 0 0 0 0.2vh rgba(7, 195, 255, 1); */
 color: rgba(7, 195, 255, 1);
 `
 
 const DayTitle = styled.div`
 color: white;
-/* font-size:2vh;  */
 `
 const TodayDayTitle = styled(DayTitle)`
 color: rgba(7, 195, 255, 1);
@@ -216,7 +217,6 @@ display:flex ;
 align-items:center ;
 padding-left:1vw ;
 box-sizing:border-box ;
-/* padding-top:1.5vh ; */
 `
 
 const Arrow = styled.img`
@@ -232,8 +232,9 @@ height:5vh;
 }
 `
 const Close = styled.img`
-width:30px ;
-height:30px;
+width:25px ;
+height:25px;
+margin-left:10px ;
 filter: invert(100%);
 &:hover{
     filter: invert(0);
@@ -256,14 +257,10 @@ align-items:center ;
 flex-direction:column ;
 margin: 0 auto;
 
-@media (max-width: 740px) { 
-    /* width: 55vw; */
-    /* height: 35vh;  */
-  }
 `
 const HeaderForAlert = styled.div`
 height: 15%;
-width:90% ;
+width:85% ;
 display:flex ;
 margin-top:10px ;
 justify-content:space-between ;
@@ -276,7 +273,7 @@ align-items:center ;
 const DateAndTimeInAlert = styled.div`
 height: 90%;
 padding-left:10px ;
-width:86% ;
+width:100% ;
 background:rgba(189, 189, 189, 1) ;
 border-radius:5px;
 `
@@ -285,10 +282,8 @@ const MainForAlert = styled.div`
 font-size:2.2vh ;
 height: 55%;
 width: 85%;
-/* background:rgba(189, 189, 189, 1) ; */
 border-radius:10px ;
 padding: 1vh 1vw;
-/* box-shadow: 0 0 2px 1px black; */
 margin-top:5px ;
 display:flex ;
 flex-direction:column ;
@@ -329,7 +324,10 @@ color:white ;
 
 
 export default function Calendar1() {
-    const [xANDx, setxANDx] = useState([])
+
+    const { auth } = useContext(Context)
+    const user = useAuthState(auth)
+
     const [xANDxForTell, setxANDxForTell] = useState([])
 
 
@@ -339,7 +337,7 @@ export default function Calendar1() {
     const [activeAlert, setAlert] = useState(false)
     const [activeAlertForCreate, setAlertForCreate] = useState(false)
 
-   
+
 
 
     const [inputValue, setInputValue] = useState('')
@@ -353,9 +351,9 @@ export default function Calendar1() {
 
     async function getMes() {
         let p1 = {}
-        let mes = await getDocs(query(collection(firestore, "dates&times")))
+
+        let mes = await getDocs(query(collection(firestore, user[0].uid)))
         mes.forEach((doc) => {
-            console.log(doc.id, "=>", doc.data())
             p1[doc.id] = doc.data()
         })
         setData(p1)
@@ -399,7 +397,7 @@ export default function Calendar1() {
                 return "rgba(7, 195, 255, 1)"
             }
             if (database[time] && database[time][item]) {
-                
+
                 return "rgba(124, 124, 124, 1)"
             } else return "white"
         }
@@ -426,45 +424,45 @@ export default function Calendar1() {
     ]
 
     let arrayWithWeekDays = [
-        'S',
-        'S',
-        'M',
-        'T',
-        'W',
-        'T',
-        'F'
+        'Сб',
+        'Вс',
+        'Пн',
+        'Вт',
+        'Ср',
+        'Чт',
+        'Пт'
     ]
 
     let titleOfWeeksDay = []
 
-   
+
     function canDeleteOrNot(time, code, e) {
         if (activeAlert === false) {
-            if (database[time] && database[time][code] && database[time][`${code}time`] ) {
-                
+            if (database[time] && database[time][code] && database[time][`${code}time`]) {
+
                 setActive([time, code, database[time][`${code}time`]])
                 setInputValue(database[time][code])
                 setCanDelete([true, time, code])
                 setAlert(true)
             } else
-            if (database[time] && database[time][code]) {
+                if (database[time] && database[time][code]) {
 
-                setActive([time, code])
-                setInputValue(database[time][code])
-                setCanDelete([true, time, code])
-                setAlert(true)
-            } else {
-                setCanDelete([false, time, code])
-                setActive([0, 0])
-            }
+                    setActive([time, code])
+                    setInputValue(database[time][code])
+                    setCanDelete([true, time, code])
+                    setAlert(true)
+                } else {
+                    setCanDelete([false, time, code])
+                    setActive([0, 0])
+                }
         }
     }
 
     async function deleteData(time, code) {
         setAlert(false)
-        await updateDoc(doc(firestore, 'dates&times', time), {
+        await updateDoc(doc(firestore, user[0].uid, time), {
             [code]: deleteField(),
-            [code+"time"]:deleteField(),
+            [code + "time"]: deleteField(),
         });
         setCanDelete(canDelete[0] = false)
         setActive([0, 0])
@@ -484,6 +482,7 @@ export default function Calendar1() {
         theDate.setDate(theDate.getDate() + week[0])
         let daysInMonth = 32 - new Date(theDate.getFullYear(), theDate.getMonth(), 32).getDate();
         let arr = week.map(item => item - daysInMonth)
+
         setWeek(arr)
     }
 
@@ -492,12 +491,15 @@ export default function Calendar1() {
         let m = 0
         let y = 0
         let theDate = new Date(today.getFullYear(), today.getMonth())
+
+
+
         function nextDay() {
             theDate.setDate(theDate.getDate() + week[0])
-
+            
             if (swichOn[0] === true) {
                 arrayFilling()
-
+                
                 if (theDate.getFullYear() < today.getFullYear()) {
                     let arr1 = week.map(item => item + 365)
                     setWeek(arr1)
@@ -514,33 +516,45 @@ export default function Calendar1() {
                         let arr1 = week.map(item => item - 32 - new Date(theDate.getFullYear(), theDate.getMonth(), 32).getDate())
                         setWeek(arr1)
                     } else if (theDate.getMonth() === today.getMonth()) {
-
+                        console.log(today.getDate())
+                        console.log(theDate.getDate())
                         if (arr.includes(today.getDate()) === true) {
+                            console.log("готово", arr)
                             setsw([false, 0])
                         } else if (theDate.getDate() < today.getDate()) {
-                            let arr1 = week.map(item => item + Math.abs(theDate.getDate() - today.getDate()))
+                            // let arr1 = week.map(item => item + Math.abs(theDate.getDate() - today.getDate()))
+                            let arr1 = week.map(item => item + 7)
                             setWeek(arr1)
 
-                        } else if (theDate.getDate() > today.getDate() + 1) {
-                            let arr1 = week.map(item => item - Math.abs(theDate.getDate() - today.getDate()))
+                        } 
+                        else if (theDate.getDate() > today.getDate() + 1) {
+                            // let arr1 = week.map(item => item - Math.abs(theDate.getDate() - today.getDate()))
+                            let arr1 = week.map(item => item - 7)
                             setWeek(arr1)
 
-                        } else if (theDate.getDate() === today.getDate()) {
-                            let arr1 = week.map(item => item + 1)
-                            setWeek(arr1)
-                            setsw([false, 0])
                         }
+                        //  else if (theDate.getDate() === today.getDate()) {
+                        //     let arr1 = week.map(item => item + 1)
+                        //     setWeek(arr1)
+                        //     setsw([false, 0])
+                        // }
                     }
                 }
             } else {
                 arrayFilling()
+                console.log(arr)
             }
 
             function arrayFilling() {
+
                 for (let i = 0; i < 7; i++) {
                     arr.push(theDate.getDate())
                     titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
                     theDate.setDate(theDate.getDate() + 1)
+                }
+                if (arrayWithWeekDays[theDate.getDay() + 1] !== 'Пн') {
+                    let arr1 = week.map(item => item + 1)
+                    setWeek(arr1)
                 }
             }
             m = theDate.getMonth()
@@ -568,18 +582,16 @@ export default function Calendar1() {
     }
 
     async function setNewData(time, code, data, originalTime) {
-        await setDoc(doc(firestore, "dates&times", time), {
+        await setDoc(doc(firestore, user[0].uid, time), {
             [code]: [data],
-            [code+"time"]:[originalTime]
+            [code + "time"]: [originalTime]
         }).then(getMes)
     }
 
     async function updateData(time, code, data, originalTime) {
-        // if (inputValue !== '') {
-            console.log(time, code, data, originalTime)
-        await updateDoc(doc(firestore, "dates&times", time), {
+        await updateDoc(doc(firestore, user[0].uid, time), {
             [code]: [data],
-            [code+"time"]:originalTime,
+            [code + "time"]: originalTime,
         }).then(getMes)
         // }
 
@@ -595,13 +607,8 @@ export default function Calendar1() {
         setWeek(arr)
     }
 
-    function screen(e) {
-        console.log(e.type)
-        console.log(e.target)
-    }
-
     /////////движения мыши 
- 
+
     function dragStartOnTel(e) {
         xANDxForTell[0] = e.touches[0].screenX
         xANDxForTell[1] = e.touches[0].screenY
@@ -627,7 +634,6 @@ export default function Calendar1() {
 
     function handleChange(e) {
         setInputValue(e.target.value)
-        console.log(inputValue)
     }
 
     function handleChange1(e) {
@@ -636,7 +642,7 @@ export default function Calendar1() {
             let тольковремя = e.target.value.split(":")
             let часы = тольковремя[0] + ":00"
             // inputForCreate[0] = часы
-            
+
 
             inputForCreate[3] = true
             Object.keys(database).forEach(key => {
@@ -665,9 +671,12 @@ export default function Calendar1() {
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-                    <img src={Logo1}/>
-                    {/* <span onClick={() => console.log(database)}><Hr1></Hr1>Interview<Secword>Calendar</Secword><Hr2></Hr2> </span> */}
-                    <RedText onClick={() => setAlertForCreate(true)}>+</RedText>
+                    <TitleLogo src={Logo1} />
+                    <div>
+                        <button onClick={() => setAlertForCreate(true)}>Add</button>
+                        <button onClick={() => auth.signOut()}>Exit</button>
+                    </div>
+
                 </Title>
                 <Days>
                     <StyledForGrid>
@@ -708,13 +717,13 @@ export default function Calendar1() {
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
                         {activeCell[2]} => {activeCell[1]}
-                      
+
                     </DateAndTimeInAlert>
 
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
-                 
+
 
                     <TextareaAutosize
                         disabled={0}
@@ -726,7 +735,7 @@ export default function Calendar1() {
                         maxRows={20}
                         onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
                     </TextareaAutosize>
-                   
+
 
                 </MainForAlert>
                 <FooterForAlert>
@@ -751,7 +760,7 @@ export default function Calendar1() {
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
                 </HeaderForAlert>
                 <MainForAlert>
-                   
+
                     <form>
                         <input type="time" onChange={(e) => handleChange1(e)} ></input>
                         <input type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
@@ -776,56 +785,3 @@ export default function Calendar1() {
 
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/////oldCode
-// async function addNewInterview() {
-
-    //     let eventTime = prompt('Enter event time:\n YYYY-MM-DD HH:mm:ss', `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} 00:10:00`);
-    //     let regexp = /[0-9]{4}[-]{1}[0-1]{0,1}[0-9]{1}[-]{1}[0-3]{0,1}[0-9]{1}[\s]{1}[0-2]{0,1}[0-9]{1}[:]{1}[0-5]{0,1}[0-9]{1}[:]{1}[0-9]{2}/gu;
-    //     if (eventTime.match(regexp)[0] !== eventTime) {
-    //         return alert("Данные введены неверно")
-    //     }
-    //     let датаивремя = eventTime.split(" ")
-    //     let толькодата = датаивремя[0].split("-")
-    //     let YYYY
-    //     let MM
-    //     let DD
-    //     if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
-    //     if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
-    //     if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
-    //     if (MM + 1 > 12) {
-    //         return alert("Неверно введен месяц")
-    //     }
-    //     let helpdate = 32 - new Date(YYYY, MM, 32).getDate();
-    //     if (DD > helpdate) {
-    //         return alert("Неверно введен день")
-    //     }
-    //     let code = `${DD}` + `${MM}` + `${YYYY}`
-    //     let тольковремя = датаивремя[1].split(":")
-    //     let часы = тольковремя[0] + ":00"
-
-
-    //     let a = true
-    //     Object.keys(database).forEach(key => {
-    //         // if (key === часы && database[key].hasOwnProperty(code)) {
-    //         //     return a = false
-    //         // }
-    //         if (key === часы) {
-    //             return a = false
-    //         }
-    //     })
-    //     sendMes(a, часы, code, датаивремя[1])
-    // }
