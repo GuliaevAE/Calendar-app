@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/Calendar-app/static/css/main.073c9b0a.css",
-    "main.js": "/Calendar-app/static/js/main.f74cff4e.js",
-    "static/media/IMFellFrenchCanonSC-Regular.ttf": "/Calendar-app/static/media/IMFellFrenchCanonSC-Regular.2449dbb0ecdea307ae6e.ttf",
-    "static/media/Logo1.svg": "/Calendar-app/static/media/Logo1.02914bc6c8586cd41324aed3999fb19e.svg",
-    "static/media/close.svg": "/Calendar-app/static/media/close.0b35c66498a9b3c25d4d474ef6ff047e.svg",
-    "static/media/leftArrow.svg": "/Calendar-app/static/media/leftArrow.49c8791c6ab0e4565ce6f0fea827408f.svg",
-    "index.html": "/Calendar-app/index.html",
-    "main.073c9b0a.css.map": "/Calendar-app/static/css/main.073c9b0a.css.map",
-    "main.f74cff4e.js.map": "/Calendar-app/static/js/main.f74cff4e.js.map"
+    "main.css": "/Calendar-app/login/static/css/main.073c9b0a.css",
+    "main.js": "/Calendar-app/login/static/js/main.27030b16.js",
+    "static/media/IMFellFrenchCanonSC-Regular.ttf": "/Calendar-app/login/static/media/IMFellFrenchCanonSC-Regular.2449dbb0ecdea307ae6e.ttf",
+    "static/media/Logo1.svg": "/Calendar-app/login/static/media/Logo1.02914bc6c8586cd41324aed3999fb19e.svg",
+    "static/media/close.svg": "/Calendar-app/login/static/media/close.0b35c66498a9b3c25d4d474ef6ff047e.svg",
+    "index.html": "/Calendar-app/login/index.html",
+    "static/media/leftArrow.svg": "/Calendar-app/login/static/media/leftArrow.49c8791c6ab0e4565ce6f0fea827408f.svg",
+    "main.073c9b0a.css.map": "/Calendar-app/login/static/css/main.073c9b0a.css.map",
+    "main.27030b16.js.map": "/Calendar-app/login/static/js/main.27030b16.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.f74cff4e.js"
+    "static/js/main.27030b16.js"
   ]
 }
