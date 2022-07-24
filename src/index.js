@@ -32,6 +32,7 @@ const auth = firebase.auth(firebaseApp)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+  
   <React.StrictMode>
     <Context.Provider value={{auth, firebaseApp, firestore}}>
     <App />

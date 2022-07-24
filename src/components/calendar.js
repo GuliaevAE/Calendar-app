@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import leftArrow from '../components/images/leftArrow.svg'
 import Logo1 from '../components/images/Logo1.svg'
 import close from '../components/images/close.svg'
@@ -9,6 +9,20 @@ import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from 
 import { Context } from "../index";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { fadeIn, fadeInLeft } from 'react-animations';
+
+import '../components/calendar.css'
+
+
+
+////animation
+const fader = keyframes(fadeIn);
+const faderLeft = keyframes(fadeInLeft);
+
+
+
+
+
 
 
 const Background = styled.div`
@@ -24,11 +38,15 @@ justify-content:center ;
 const CalendarBlock = styled.div`
 width:100vw ;
 position:relative ;
+animation: 1s ${fader} alternate;
+overflow: hidden;
+
 
 @media (max-width: 740px) { 
     width:100vw ; 
   }
 `
+
 
 const Title = styled.div`
 @font-face {
@@ -41,24 +59,33 @@ const Title = styled.div`
     border-radius:10px ;
     background: transparent ;
     color: rgba(7, 195, 255, 1);
-    height:5vh ;
+    height:30px ;
     width:80px ;
     margin-left:2vw;
-}
+    transition: background 0.5s;
+    &:hover{
+        background:rgba(7, 195, 255, 1);
+        color:rgba(124, 124, 124, 1) ;
+    }
+    }
 
 @media (max-width: 410px) { 
     button{
-    height:4vh ;
-    width:55px ;
+    
+    width:auto ;
     margin-left:1vw;
     }
   }
 
-  @media (max-width: 350px) { 
+  @media (max-width: 300px) { 
+    div{
+        display:flex ;
+        flex-direction:column ;
+        width:auto ;
+    }
     button{
-    
-    width:55px ;
-    margin:3px 6vw;
+        height:4vh ;
+        width:100% ;
     }
   }
 
@@ -80,9 +107,6 @@ const TitleLogo = styled.img`
 height:80% ;
 `
 
-const TitleButton = styled.img`
-height:10%;
-`
 
 const Secword = styled.span`
 color: rgba(7, 195, 255, 1);
@@ -91,23 +115,11 @@ const Wirstword = styled(Secword)`
 color: white;
 `
 
-const Hr1 = styled.hr`
-border: none;
-border-bottom: 1px solid white;
-`
-
-const Hr2 = styled.hr`
-border: none;
-border-top: 1px solid rgba(7, 195, 255, 1);
-
-`
-
 const Days = styled.div`
 height: 4vh;
-font-size:2.4vh;
+font-size:2vh;
 box-sizing:border-box ;
 background:rgba(124, 124, 124, 1);
-/* box-shadow:inset 0 1px rgba(231, 231, 231, 1) ; */
 @font-face {
   font-family: 'Roboto Condensed';
   src: url(${RobotoWoff2}) format('ttf');
@@ -117,12 +129,12 @@ font-family: 'Roboto Condensed' ;
 `
 
 const Month = styled(Days)` 
-box-shadow:inset 0 -1px rgba(231, 231, 231, 1) ;
 display:flex ;
 justify-content: space-between ;
 align-items:center ;
 padding-left:95px ;
 padding-right:40px ;
+box-shadow:inset 0 -0.2vh rgba(105, 105, 105, 1);
 `
 
 const Main = styled.div`
@@ -148,12 +160,13 @@ align-items:center ;
 color:white ;
 font-size:2.7vh ;
 height: 5vh;
+box-shadow:inset 0 0.2vh rgba(105, 105, 105, 1);
 `
 
 const WeekDayWithDay = styled.div`
 display:flex ;
 flex-direction:column ;
-font-size:2.2vh;
+font-size:2vh;
 text-align:center ;
 align-items:center ;
 position:relative ;
@@ -162,7 +175,7 @@ position:relative ;
 const StyledForGrid = styled.div`
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
-padding-left:8vh ;
+padding-left:6.5vh ;
 position: relative ;
 `
 
@@ -176,14 +189,16 @@ const BackForCell = styled.div`
 background:${props => props.bg};
 height:5vh ;
 width:100% ;
+transition: background 0.5s;
 `
 
 const StyledForGridCellWithTimes = styled.div`
 font-size:2vh ;
 position:absolute ;
 top: -1.5vh;
-left: 3vh;
+left: 1vh;
 color: rgba(190, 190, 191, 1) ;
+
 `
 
 const DayFrame = styled.div`
@@ -194,15 +209,16 @@ align-items:center ;
 justify-content:center ;
 color: white;
 `
+const DayTitle = styled.div`
+color: white;
+`
 
 const TodayFrame = styled(DayFrame)`
 border-radius:50%;
 color: rgba(7, 195, 255, 1);
 `
 
-const DayTitle = styled.div`
-color: white;
-`
+
 const TodayDayTitle = styled(DayTitle)`
 color: rgba(7, 195, 255, 1);
 `
@@ -211,7 +227,6 @@ color: rgba(7, 195, 255, 1);
 
 const WeeksArrows = styled.div`
 position:absolute ;
-width:100% ;
 height:100% ;
 display:flex ;
 align-items:center ;
@@ -221,7 +236,7 @@ box-sizing:border-box ;
 
 const Arrow = styled.img`
 opacity:0.5 ;
-width:5vh ;
+width:4vh ;
 height:5vh;
 
 &:hover{
@@ -247,16 +262,9 @@ filter: invert(100%);
 const AlertWindow = styled.div`
 position:absolute ;
 min-width:250px ;
-width:50%;
-background:rgba(0, 0, 0, 0.47) ;
 border-radius:20px ;
-z-index:2 ;
-display:flex ;
-justify-content:space-between ;
-align-items:center ;
-flex-direction:column ;
 margin: 0 auto;
-
+animation: 1s ${faderLeft} alternate;
 `
 const HeaderForAlert = styled.div`
 height: 15%;
@@ -265,9 +273,6 @@ display:flex ;
 margin-top:10px ;
 justify-content:space-between ;
 align-items:center ;
-
-
-
 `
 
 const DateAndTimeInAlert = styled.div`
@@ -325,6 +330,11 @@ color:white ;
 
 export default function Calendar1() {
 
+    const [updateClass, setCl] = useState(false)
+
+
+
+
     const { auth } = useContext(Context)
     const user = useAuthState(auth)
 
@@ -365,6 +375,8 @@ export default function Calendar1() {
     const [today] = useState(new Date())
     const [activeCell, setActive] = useState([0, 0])
 
+
+
     function renderCell() {
         let helpArray = []
         let arrayWithTime = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
@@ -373,7 +385,10 @@ export default function Calendar1() {
         theDay.setDate(theDay.getDate() + week[0])
 
         for (let i = 0; i < 7; i++) {
-            let code = `${theDay.getDate()}` + `${theDay.getMonth()}` + `${theDay.getFullYear()}`
+            let MM; let DD
+            if (theDay.getMonth() < 10) { MM = `0${theDay.getMonth()}` } else { MM = theDay.getMonth() }
+            if (theDay.getDate() < 10) { DD = `0${theDay.getDate()}` } else { DD = theDay.getDate() }
+            let code = `${DD}` + `${MM}` + `${theDay.getFullYear()}`
             helpArray.push(code)
             theDay.setDate(theDay.getDate() + 1)
         }
@@ -384,7 +399,7 @@ export default function Calendar1() {
                     {times}
                 </StyledForGridCellWithTimes>
                 {helpArray.map(item => {
-                    return <StyledForGridCell onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
+                    return <StyledForGridCell className="mainright1" onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
                         <BackForCell id="gridCell" bg={checkData(times, item)} />
                     }
                     </StyledForGridCell>
@@ -496,10 +511,10 @@ export default function Calendar1() {
 
         function nextDay() {
             theDate.setDate(theDate.getDate() + week[0])
-            
+
             if (swichOn[0] === true) {
                 arrayFilling()
-                
+
                 if (theDate.getFullYear() < today.getFullYear()) {
                     let arr1 = week.map(item => item + 365)
                     setWeek(arr1)
@@ -516,18 +531,16 @@ export default function Calendar1() {
                         let arr1 = week.map(item => item - 32 - new Date(theDate.getFullYear(), theDate.getMonth(), 32).getDate())
                         setWeek(arr1)
                     } else if (theDate.getMonth() === today.getMonth()) {
-                        console.log(today.getDate())
-                        console.log(theDate.getDate())
                         if (arr.includes(today.getDate()) === true) {
-                            console.log("готово", arr)
+                            console.log(arr)
                             setsw([false, 0])
                         } else if (theDate.getDate() < today.getDate()) {
                             // let arr1 = week.map(item => item + Math.abs(theDate.getDate() - today.getDate()))
                             let arr1 = week.map(item => item + 7)
                             setWeek(arr1)
 
-                        } 
-                        else if (theDate.getDate() > today.getDate() + 1) {
+                        }
+                        else if (theDate.getDate() > today.getDate()) {
                             // let arr1 = week.map(item => item - Math.abs(theDate.getDate() - today.getDate()))
                             let arr1 = week.map(item => item - 7)
                             setWeek(arr1)
@@ -542,7 +555,7 @@ export default function Calendar1() {
                 }
             } else {
                 arrayFilling()
-                console.log(arr)
+                // console.log(arr)
             }
 
             function arrayFilling() {
@@ -552,8 +565,8 @@ export default function Calendar1() {
                     titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
                     theDate.setDate(theDate.getDate() + 1)
                 }
-                if (arrayWithWeekDays[theDate.getDay() + 1] !== 'Пн') {
-                    let arr1 = week.map(item => item + 1)
+                if (arrayWithWeekDays[theDate.getDay()] !== 'Пн') {
+                    let arr1 = week.map(item => item - 1)
                     setWeek(arr1)
                 }
             }
@@ -654,10 +667,12 @@ export default function Calendar1() {
         if (e.target.type === "date") {
             let толькодата = e.target.value.split("-")
             let YYYY; let MM; let DD
-            if (толькодата[0][0] === "0") { YYYY = толькодата[0].replace(/[0]/, '') } else { YYYY = толькодата[0] }
-            if (толькодата[1][0] === "0") { MM = толькодата[1].replace(/[0]/, '') - 1 } else { MM = толькодата[1] - 1 }
-            if (толькодата[2][0] === "0") { DD = толькодата[2].replace(/[0]/, '') } else { DD = толькодата[2] }
+            YYYY = толькодата[0]
+            if (толькодата[1][0] === "0") { MM = `0${толькодата[1] - 1}` } else { MM = толькодата[1] - 1 }
+            DD = толькодата[2]
             let code = `${DD}` + `${MM}` + `${YYYY}`
+            // alert(code)
+            // alert(`${code[2]}${code[3]}`)
             inputForCreate[1] = code
         }
         if (e.target.type === "text" || e.target.type === "textarea") {
@@ -666,6 +681,10 @@ export default function Calendar1() {
         }
 
     }
+
+
+
+
 
     return (
         <Background onClick={(e) => clockScreen(e)}>
@@ -678,7 +697,7 @@ export default function Calendar1() {
                     </div>
 
                 </Title>
-                <Days>
+                <Days >
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
                             if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
@@ -713,11 +732,10 @@ export default function Calendar1() {
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
                 </Footer>
             </CalendarBlock>
-            {activeAlert && <AlertWindow className="alert">
+            {activeAlert && <AlertWindow className="alert1">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
-                        {activeCell[2]} => {activeCell[1]}
-
+                        {activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}
                     </DateAndTimeInAlert>
 
                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
@@ -751,7 +769,7 @@ export default function Calendar1() {
 
 
             {/* Добавление через + */}
-            {activeAlertForCreate && <AlertWindow className="alert">
+            {activeAlertForCreate && <AlertWindow className="alert1">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
                         <span>Заполните время, дату</span>
