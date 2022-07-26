@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import styled, { css, keyframes } from 'styled-components'
 import leftArrow from '../components/images/leftArrow.svg'
 import Logo1 from '../components/images/Logo1.svg'
+import ShortLogo from '../components/images/ShortLogo.svg'
 import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
-import axios from "axios"
 import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
 import { Context } from "../index";
 import TextareaAutosize from 'react-textarea-autosize';
@@ -12,7 +12,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { fadeIn, fadeInLeft } from 'react-animations';
 
 import '../components/calendar.css'
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min.js';
 
 
 ////animation
@@ -53,14 +54,21 @@ const Title = styled.div`
   font-family: 'Roboto Condensed';
   src: url(${RobotoWoff2}) format('ttf'); 
 }
+    div{
+        display:flex ;
+        justify-content:end ;
+    }
+    img{
+        
+    }
 
- button{
+    button{
     border:3px solid rgba(7, 195, 255, 1);
     border-radius:10px ;
     background: transparent ;
     color: rgba(7, 195, 255, 1);
-    height:30px ;
-    width:80px ;
+    height:9vh ;
+    width:100% ;
     margin-left:2vw;
     transition: background 0.5s;
     &:hover{
@@ -69,15 +77,15 @@ const Title = styled.div`
     }
     }
 
-@media (max-width: 410px) { 
+/* @media (max-width: 410px) { 
     button{
     
     width:auto ;
     margin-left:1vw;
     }
-  }
+  } */
 
-  @media (max-width: 300px) { 
+  /* @media (max-width: 300px) { 
     div{
         display:flex ;
         flex-direction:column ;
@@ -87,7 +95,7 @@ const Title = styled.div`
         height:4vh ;
         width:100% ;
     }
-  }
+  } */
 
 height: 10vh;
 background:rgba(124, 124, 124, 1) ;
@@ -104,8 +112,20 @@ box-sizing:border-box;
 font-family: 'Roboto Condensed' ;
 `
 const TitleLogo = styled.img`
-height:80% ;
-`
+    height:100% ;
+    background-size:100% 100% ;
+    @media (max-width: 440px) { 
+    ${props => props.small = "small"}
+        ; 
+  }
+  `
+
+
+TitleLogo.defaultProps = {
+
+    src: ShortLogo
+}
+
 
 
 const Secword = styled.span`
@@ -310,7 +330,7 @@ input{
     margin: 5px auto;
     resize:none;
     border-radius: 10px;
-    background:rgba(189, 189, 189, 1);
+    /* background:rgba(189, 189, 189, 1); */
   
 }
 `
@@ -330,8 +350,10 @@ color:white ;
 
 export default function Calendar1() {
 
-    const [updateClass, setCl] = useState(false)
-
+    const [error, seterror] = useState('')
+    const timeInput = useRef(null);
+    const dateInput = useRef(null);
+    const textInput = useRef(null);
 
 
 
@@ -399,23 +421,25 @@ export default function Calendar1() {
                     {times}
                 </StyledForGridCellWithTimes>
                 {helpArray.map(item => {
-                    return <StyledForGridCell className="mainright1" onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
-                        <BackForCell id="gridCell" bg={checkData(times, item)} />
+                    return <StyledForGridCell onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
+                        activeCell[0] === times && activeCell[1] === item ? <BackForCell data-bs-toggle="modal" data-bs-target="#exampleModal" id="gridCell" bg="rgba(7, 195, 255, 1)" /> :
+                            database[times] && database[times][item] ? <BackForCell data-bs-toggle="modal" data-bs-target="#exampleModal" id="gridCell" bg="rgba(124, 124, 124, 1)" /> :
+                                <BackForCell id="gridCell" bg="white" />
                     }
                     </StyledForGridCell>
                 })}
             </StyledForGrid>)
         })
 
-        function checkData(time, item) {
-            if (activeCell[0] === time && activeCell[1] === item) {
-                return "rgba(7, 195, 255, 1)"
-            }
-            if (database[time] && database[time][item]) {
+        // function checkData(time, item) {
+        //     if (activeCell[0] === time && activeCell[1] === item) {
+        //         return "rgba(7, 195, 255, 1)"
+        //     }
+        //     if (database[time] && database[time][item]) {
 
-                return "rgba(124, 124, 124, 1)"
-            } else return "white"
-        }
+        //         return "rgba(124, 124, 124, 1)"
+        //     } else return "white"
+        // }
 
         return (
             <>
@@ -482,6 +506,7 @@ export default function Calendar1() {
         setCanDelete(canDelete[0] = false)
         setActive([0, 0])
         setout(!cutout)
+        setAlert(false)
     }
 
     function nextMonth() {
@@ -532,7 +557,7 @@ export default function Calendar1() {
                         setWeek(arr1)
                     } else if (theDate.getMonth() === today.getMonth()) {
                         if (arr.includes(today.getDate()) === true) {
-                            console.log(arr)
+
                             setsw([false, 0])
                         } else if (theDate.getDate() < today.getDate()) {
                             // let arr1 = week.map(item => item + Math.abs(theDate.getDate() - today.getDate()))
@@ -555,7 +580,7 @@ export default function Calendar1() {
                 }
             } else {
                 arrayFilling()
-                // console.log(arr)
+
             }
 
             function arrayFilling() {
@@ -583,6 +608,9 @@ export default function Calendar1() {
 
 
     async function sendMes(nw, time, code, data, originalTime) {
+        seterror('Данные сохранены')
+        setTimeout(() => seterror(''), 1000)
+        deleteInputsValue()
         if (nw === true) {
             // добавление времени
             setNewData(time, code, data, originalTime)
@@ -590,9 +618,19 @@ export default function Calendar1() {
             // добавление дня к времени
             updateData(time, code, data, originalTime)
         }
-        setCreateInput([])
+
         setAlertForCreate(false)
     }
+
+    function deleteInputsValue() {
+        inputForCreate = []
+        setCreateInput([])
+        timeInput.current.value = '';
+        dateInput.current.value = '';
+        textInput.current.value = ''
+    }
+
+
 
     async function setNewData(time, code, data, originalTime) {
         await setDoc(doc(firestore, user[0].uid, time), {
@@ -650,6 +688,7 @@ export default function Calendar1() {
     }
 
     function handleChange1(e) {
+
         if (e.target.type === "time") {
             inputForCreate[0] = e.target.value
             let тольковремя = e.target.value.split(":")
@@ -671,8 +710,6 @@ export default function Calendar1() {
             if (толькодата[1][0] === "0") { MM = `0${толькодата[1] - 1}` } else { MM = толькодата[1] - 1 }
             DD = толькодата[2]
             let code = `${DD}` + `${MM}` + `${YYYY}`
-            // alert(code)
-            // alert(`${code[2]}${code[3]}`)
             inputForCreate[1] = code
         }
         if (e.target.type === "text" || e.target.type === "textarea") {
@@ -682,7 +719,10 @@ export default function Calendar1() {
 
     }
 
-
+    function timeoutError() {
+        seterror('Неправильно введены данные')
+        setTimeout(() => seterror(''), 1000)
+    }
 
 
 
@@ -690,9 +730,10 @@ export default function Calendar1() {
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-                    <TitleLogo src={Logo1} />
-                    <div>
-                        <button onClick={() => setAlertForCreate(true)}>Add</button>
+
+                    <TitleLogo className="img-fluid" style={{width: "50%"}} small={false}/>
+                    <div style={{width: "50%"}}>
+                        <button data-bs-toggle="modal" data-bs-target="#createModal" onClick={() => setAlertForCreate(true)}>Add</button>
                         <button onClick={() => auth.signOut()}>Exit</button>
                     </div>
 
@@ -732,7 +773,7 @@ export default function Calendar1() {
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
                 </Footer>
             </CalendarBlock>
-            {activeAlert && <AlertWindow className="alert1">
+            {false && <AlertWindow className="alert1">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
                         {activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}
@@ -766,10 +807,49 @@ export default function Calendar1() {
                 </FooterForAlert>
             </AlertWindow>}
 
+            <div className="modal fade " data-bs-backdrop="static" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">{activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setAlert(false)}></button>
+                        </div>
+                        <div className="modal-body">
+                            {activeAlert && <TextareaAutosize
+                                disabled={0}
+                                style={{
+                                    "border-radius": "5px",
+                                    width: "100%",
+                                    border: 0,
+                                    resize: "none",
+                                    background: "rgb(200, 200, 200)",
+                                }}
+                                minRows={1}
+                                maxRows={20}
+                                onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
+                            </TextareaAutosize>}
+
+                        </div>
+                        <div className="modal-footer" style={{ display: "flex", flexDirection: "row-reverse", justifyContent: "space-between" }}>
+                            <div>
+                                <button type="button" className="btn btn-secondary" style={{ marginRight: "10px" }} onClick={() => {
+                                    updateData(activeCell[0], activeCell[1], inputValue, activeCell[2]); seterror('Обновлено')
+                                    setTimeout(() => seterror(''), 1000)
+                                }}>Update</button>
+                                {canDelete[0] && <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</button>}
+                            </div>
+                            {error}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 
 
             {/* Добавление через + */}
-            {activeAlertForCreate && <AlertWindow className="alert1">
+            {false && <AlertWindow className="alert1">
                 <HeaderForAlert>
                     <DateAndTimeInAlert>
                         <span>Заполните время, дату</span>
@@ -780,8 +860,22 @@ export default function Calendar1() {
                 <MainForAlert>
 
                     <form>
-                        <input type="time" onChange={(e) => handleChange1(e)} ></input>
-                        <input type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
+                        <input type="time" style={{
+                            "border-radius": "5px",
+                            width: "100%",
+                            border: 0,
+                            resize: "none",
+                            background: "rgb(200, 200, 200)",
+                        }}
+                            onChange={(e) => handleChange1(e)} ></input>
+                        <input style={{
+                            "border-radius": "5px",
+                            width: "100%",
+                            border: 0,
+                            resize: "none",
+                            background: "rgb(200, 200, 200)",
+                        }}
+                            type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
                         <TextareaAutosize
                             placeholder="и то, что хотите сохранить"
                             disabled={0}
@@ -799,6 +893,60 @@ export default function Calendar1() {
                     <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
                 </FooterForAlert>
             </AlertWindow>}
+
+            <div className="modal fade " data-bs-backdrop="static" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered ">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Заполните время, дату</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { setAlert(false); deleteInputsValue() }}></button>
+                        </div>
+                        <div className="modal-body" >
+                            <form style={{ display: "flex", flexDirection: "column" }}>
+                                <input style={{
+                                    "border-radius": "5px",
+                                    width: "100%",
+                                    marginBottom: "10px",
+                                    border: 0,
+                                    resize: "none",
+                                    background: "rgb(200, 200, 200)",
+                                }} ref={timeInput} type="time" onChange={(e) => handleChange1(e)} ></input>
+                                <input style={{
+                                    "border-radius": "5px",
+                                    width: "100%",
+                                    marginBottom: "10px",
+                                    border: 0,
+                                    resize: "none",
+                                    background: "rgb(200, 200, 200)",
+                                }} ref={dateInput} type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
+                                <TextareaAutosize
+                                    ref={textInput}
+                                    placeholder="И то, что хотите сохранить..."
+                                    disabled={0}
+                                    style={{
+                                        "border-radius": "5px",
+                                        width: "100%",
+                                        border: 0,
+                                        resize: "none",
+                                        background: "rgb(200, 200, 200)",
+                                    }}
+                                    minRows={1}
+                                    maxRows={15}
+                                    onChange={(e) => handleChange1(e)}>
+                                </TextareaAutosize>
+
+                            </form>
+
+                        </div>
+                        <div className="modal-footer" style={{ display: "flex", flexDirection: "row-reverse", justifyContent: "space-between" }} onClick={() => { }}>
+
+                            <button type="button" className="btn btn-secondary" onClick={(e) => { (inputForCreate[0] && inputForCreate[1] && inputForCreate[2]) ? sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0]) : timeoutError() }}>Create</button>
+                            {error}
+                            {/* {canDelete[0] && <button type="button" className="btn btn-primary" onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</button>} */}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Background>
 
     )
