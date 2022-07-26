@@ -37,15 +37,15 @@ justify-content:center ;
 `
 
 const CalendarBlock = styled.div`
-width:100vw ;
+width:100% ;
 position:relative ;
 animation: 1s ${fader} alternate;
 overflow: hidden;
 
-
+/* 
 @media (max-width: 740px) { 
     width:100vw ; 
-  }
+  } */
 `
 
 
@@ -350,6 +350,40 @@ color:white ;
 
 export default function Calendar1() {
 
+
+    ///////////////////////////////////////////////////////////
+    /////////место для чужого календаря
+    const [arrayguest, setArrayGuest] = useState([])
+    const [guestUid, setGuest] = useState('Выберите из списка')
+    const [databaseForGuest, setDataForGuest] = useState({})
+    const [activeAlertForGuest, setAlertForGuest] = useState(false)
+
+    async function getMesForGuest() {
+
+        let p1 = {}
+        let mes = await getDocs(query(collection(firestore, guestUid)))
+        mes.forEach((doc) => {
+            p1[doc.id] = doc.data()
+        })
+        setDataForGuest(p1)
+
+
+    }
+
+    const [activeCellForGuest, setActiveForGuest] = useState([0, 0])
+    const [emailInput, setEmail] = useState('')
+
+
+
+    ///////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
     const [error, seterror] = useState('')
     const timeInput = useRef(null);
     const dateInput = useRef(null);
@@ -369,9 +403,6 @@ export default function Calendar1() {
     const [activeAlert, setAlert] = useState(false)
     const [activeAlertForCreate, setAlertForCreate] = useState(false)
 
-
-
-
     const [inputValue, setInputValue] = useState('')
     let [inputForCreate, setCreateInput] = useState([])
 
@@ -379,16 +410,26 @@ export default function Calendar1() {
 
     useEffect(() => {
         getMes()
+        getMesForGuest()
     }, [cutout])
+
+    useEffect(() => {
+
+        getMesForGuest()
+    }, [guestUid])
 
     async function getMes() {
         let p1 = {}
-
         let mes = await getDocs(query(collection(firestore, user[0].uid)))
         mes.forEach((doc) => {
             p1[doc.id] = doc.data()
         })
         setData(p1)
+        if (p1.openAsGuest) {
+            setArrayGuest(p1.openAsGuest)
+        }
+
+        ///////////////////////////////
     }
 
     const [week, setWeek] = useState([0, 7])
@@ -399,7 +440,12 @@ export default function Calendar1() {
 
 
 
-    function renderCell() {
+    function renderCell(clientORguest = true) {
+        let db = clientORguest ? database : databaseForGuest
+        let clORgs = clientORguest
+        let whatModal = clientORguest ? "#exampleModal" : "#guestModal"
+        let aC = clientORguest ? activeCell : activeCellForGuest
+
         let helpArray = []
         let arrayWithTime = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
         let theDay = new Date(today.getFullYear(), today.getMonth())
@@ -421,9 +467,9 @@ export default function Calendar1() {
                     {times}
                 </StyledForGridCellWithTimes>
                 {helpArray.map(item => {
-                    return <StyledForGridCell onClick={(e) => canDeleteOrNot(times, item, e)} id={item}>{
-                        activeCell[0] === times && activeCell[1] === item ? <BackForCell data-bs-toggle="modal" data-bs-target="#exampleModal" id="gridCell" bg="rgba(7, 195, 255, 1)" /> :
-                            database[times] && database[times][item] ? <BackForCell data-bs-toggle="modal" data-bs-target="#exampleModal" id="gridCell" bg="rgba(124, 124, 124, 1)" /> :
+                    return <StyledForGridCell onClick={(e) => canDeleteOrNot(times, item, clORgs)} id={item}>{
+                        aC[0] === times && aC[1] === item ? <BackForCell data-bs-toggle="modal" data-bs-target="#exampleModal" id="gridCell" bg="rgba(7, 195, 255, 1)" /> :
+                            db[times] && db[times][item] ? <BackForCell data-bs-toggle="modal" data-bs-target={whatModal} id="gridCell" bg="rgba(124, 124, 124, 1)" /> :
                                 <BackForCell id="gridCell" bg="white" />
                     }
                     </StyledForGridCell>
@@ -475,24 +521,27 @@ export default function Calendar1() {
     let titleOfWeeksDay = []
 
 
-    function canDeleteOrNot(time, code, e) {
-        if (activeAlert === false) {
-            if (database[time] && database[time][code] && database[time][`${code}time`]) {
+    function canDeleteOrNot(time, code, clientORguest) {
+        let db = clientORguest ? database : databaseForGuest
+        let aAlert = clientORguest ? activeAlert : activeAlertForGuest
+        let sA = clientORguest ? setActive : setActiveForGuest
 
-                setActive([time, code, database[time][`${code}time`]])
-                setInputValue(database[time][code])
-                setCanDelete([true, time, code])
-                setAlert(true)
+
+        if (aAlert === false) {
+            if (db[time] && db[time][code] && db[time][`${code}time`]) {
+                sA([time, code, db[time][`${code}time`]])
+                setInputValue(db[time][code])
+                clientORguest ? setCanDelete([true, time, code]) : setCanDelete([false, time, code])
+                clientORguest ? setAlert(true) : setAlertForGuest(true)
             } else
-                if (database[time] && database[time][code]) {
-
-                    setActive([time, code])
-                    setInputValue(database[time][code])
+                if (database[time] && db[time][code]) {
+                    sA([time, code])
+                    setInputValue(db[time][code])
                     setCanDelete([true, time, code])
-                    setAlert(true)
+                    clientORguest ? setAlert(true) : setAlertForGuest(true)
                 } else {
                     setCanDelete([false, time, code])
-                    setActive([0, 0])
+                    sA([0, 0])
                 }
         }
     }
@@ -608,9 +657,8 @@ export default function Calendar1() {
 
 
     async function sendMes(nw, time, code, data, originalTime) {
-        seterror('Данные сохранены')
-        setTimeout(() => seterror(''), 1000)
-        deleteInputsValue()
+
+
         if (nw === true) {
             // добавление времени
             setNewData(time, code, data, originalTime)
@@ -630,20 +678,40 @@ export default function Calendar1() {
         textInput.current.value = ''
     }
 
-
-
-    async function setNewData(time, code, data, originalTime) {
-        await setDoc(doc(firestore, user[0].uid, time), {
-            [code]: [data],
-            [code + "time"]: [originalTime]
-        }).then(getMes)
+    function afterDataSaved() {
+        seterror('Данные сохранены')
+        setTimeout(() => seterror(''), 1000)
+        deleteInputsValue()
     }
 
-    async function updateData(time, code, data, originalTime) {
-        await updateDoc(doc(firestore, user[0].uid, time), {
-            [code]: [data],
-            [code + "time"]: originalTime,
-        }).then(getMes)
+    async function setNewData(time, code, data, originalTime = false) {
+        if (originalTime) {
+            await setDoc(doc(firestore, user[0].uid, time), {
+                [code]: [data],
+                [code + "time"]: [originalTime]
+            }).then(getMes).then(afterDataSaved)
+        } else {
+            await setDoc(doc(firestore, user[0].uid, time), {
+                [code]: data,
+
+            }).then(getMes).then(afterDataSaved)
+        }
+
+    }
+
+    async function updateData(time, code, data, originalTime = false) {
+        if (originalTime) {
+            await updateDoc(doc(firestore, user[0].uid, time), {
+                [code]: [data],
+                [code + "time"]: originalTime,
+            }).then(getMes).then(afterDataSaved)
+        } else {
+            await updateDoc(doc(firestore, user[0].uid, time), {
+                [code]: data,
+
+            }).then(getMes).then(afterDataSaved)
+        }
+
         // }
 
     }
@@ -678,6 +746,7 @@ export default function Calendar1() {
     function clockScreen(e) {
         if (e.target.id === "close") {
             setAlert(false)
+            setAlertForGuest(false)
             setAlertForCreate(false)
             setInputValue('')
         }
@@ -725,14 +794,51 @@ export default function Calendar1() {
     }
 
 
+    async function canBeGuestFor() {
+
+
+
+        const docSnap = await getDocs(query(collection(firestore, emailInput)))
+        let y = false
+        async function isemail() {
+            if (database.openAsGuest) { console.log('yes') } else { await setDoc(doc(firestore, user[0].uid, "openAsGuest"), {}) }
+            Object.keys(database.openAsGuest).forEach(key => {
+                console.log("emailInput", emailInput)
+                console.log("database.openAsGuest[key]", database.openAsGuest[key])
+                if (database.openAsGuest[key] == emailInput) {
+                    y = true
+                }
+            })
+        }
+        isemail()
+        console.log("Cached document data:", docSnap);
+        if (y) {
+            seterror('Доступ уже есть')
+            setTimeout(() => seterror(''), 1000)
+        } else
+            if (docSnap.empty) {
+                seterror('Такого аккаунта не существует')
+                setTimeout(() => seterror(''), 1000)
+            } else {
+                sendMes(database.openAsGuest ? false : true, 'openAsGuest', emailInput, emailInput, false)
+            }
+
+
+
+
+
+        // if ()
+        //     
+    }
+
 
     return (
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-
-                    <TitleLogo className="img-fluid" style={{width: "50%"}} small={false}/>
-                    <div style={{width: "50%"}}>
+        
+                    <TitleLogo className="img-fluid" style={{ width: "50%" }} small={false} data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" />
+                    <div style={{ width: "50%" }}>
                         <button data-bs-toggle="modal" data-bs-target="#createModal" onClick={() => setAlertForCreate(true)}>Add</button>
                         <button onClick={() => auth.signOut()}>Exit</button>
                     </div>
@@ -773,41 +879,9 @@ export default function Calendar1() {
                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
                 </Footer>
             </CalendarBlock>
-            {false && <AlertWindow className="alert1">
-                <HeaderForAlert>
-                    <DateAndTimeInAlert>
-                        {activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}
-                    </DateAndTimeInAlert>
 
-                    <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
-                </HeaderForAlert>
-                <MainForAlert>
-
-
-                    <TextareaAutosize
-                        disabled={0}
-                        style={{
-                            "border-radius": "10px",
-                            "background": "rgba(189, 189, 189, 1)"
-                        }}
-                        minRows={1}
-                        maxRows={20}
-                        onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
-                    </TextareaAutosize>
-
-
-                </MainForAlert>
-                <FooterForAlert>
-                    <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue, activeCell[2])}>Update</span>
-                    <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
-
-
-
-
-                </FooterForAlert>
-            </AlertWindow>}
-
-            <div className="modal fade " data-bs-backdrop="static" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            {/* ////////////для клиента///////////////// */}
+            <div className="modal fade " data-bs-backdrop="static" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -818,7 +892,7 @@ export default function Calendar1() {
                             {activeAlert && <TextareaAutosize
                                 disabled={0}
                                 style={{
-                                    "border-radius": "5px",
+                                    borderRadius: "5px",
                                     width: "100%",
                                     border: 0,
                                     resize: "none",
@@ -849,52 +923,7 @@ export default function Calendar1() {
 
 
             {/* Добавление через + */}
-            {false && <AlertWindow className="alert1">
-                <HeaderForAlert>
-                    <DateAndTimeInAlert>
-                        <span>Заполните время, дату</span>
-                    </DateAndTimeInAlert>
-
-                    <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
-                </HeaderForAlert>
-                <MainForAlert>
-
-                    <form>
-                        <input type="time" style={{
-                            "border-radius": "5px",
-                            width: "100%",
-                            border: 0,
-                            resize: "none",
-                            background: "rgb(200, 200, 200)",
-                        }}
-                            onChange={(e) => handleChange1(e)} ></input>
-                        <input style={{
-                            "border-radius": "5px",
-                            width: "100%",
-                            border: 0,
-                            resize: "none",
-                            background: "rgb(200, 200, 200)",
-                        }}
-                            type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
-                        <TextareaAutosize
-                            placeholder="и то, что хотите сохранить"
-                            disabled={0}
-                            style={{
-                                "border-radius": "10px",
-                                "background": "rgba(189, 189, 189, 1)"
-                            }}
-                            minRows={1}
-                            maxRows={20}
-                            onChange={(e) => handleChange1(e)}>
-                        </TextareaAutosize>
-                    </form>
-                </MainForAlert>
-                <FooterForAlert>
-                    <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
-                </FooterForAlert>
-            </AlertWindow>}
-
-            <div className="modal fade " data-bs-backdrop="static" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+            <div className="modal fade " data-bs-backdrop="static" id="createModal" tabIndex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered ">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -904,7 +933,7 @@ export default function Calendar1() {
                         <div className="modal-body" >
                             <form style={{ display: "flex", flexDirection: "column" }}>
                                 <input style={{
-                                    "border-radius": "5px",
+                                    borderRadius: "5px",
                                     width: "100%",
                                     marginBottom: "10px",
                                     border: 0,
@@ -912,7 +941,7 @@ export default function Calendar1() {
                                     background: "rgb(200, 200, 200)",
                                 }} ref={timeInput} type="time" onChange={(e) => handleChange1(e)} ></input>
                                 <input style={{
-                                    "border-radius": "5px",
+                                    borderRadius: "5px",
                                     width: "100%",
                                     marginBottom: "10px",
                                     border: 0,
@@ -924,7 +953,7 @@ export default function Calendar1() {
                                     placeholder="И то, что хотите сохранить..."
                                     disabled={0}
                                     style={{
-                                        "border-radius": "5px",
+                                        borderRadius: "5px",
                                         width: "100%",
                                         border: 0,
                                         resize: "none",
@@ -947,7 +976,233 @@ export default function Calendar1() {
                     </div>
                 </div>
             </div>
+
+            {/* //вне холста */}
+            {/* <button className="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">Переключатель вверху offcanvas</button> */}
+
+            <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+                <div className="offcanvas-header">
+                    <h5 id="offcanvasTopLabel">Профиль</h5>
+                    <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div className="offcanvas-body">
+                    <div className="container">
+                        <div className="row align-items-center justify-content-center">
+                            <div className="col-sm-3">
+                                <img src={user[0].photoURL} style={{ minWidth: "50px" }} alt="img" className="img-fluid" />
+                            </div>
+                            <div className="col-sm-9">
+                                <span className="d-block">{user[0].displayName}</span>
+                                <span className="d-block">{user[0].email}</span>
+                                ID:<span className="text-danger">{user[0].uid}</span>
+                            </div>
+
+                        </div>
+                        <div className="dropdown mb-3">
+                            <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                {guestUid}
+                            </button>
+                            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                {Object.keys(arrayguest).map(key => <li key={key} onClick={() => { setGuest(arrayguest[key]); setActiveForGuest([0, 0]) }} className="dropdown-item" >{key}</li>)}
+                                <li key={"Введите ID получателя"} className="dropdown-item" onClick={() => setGuest("Введите ID получателя")} >Добавить календарь</li>
+
+                            </ul>
+                        </div>
+
+
+
+
+                        {guestUid === "Введите ID получателя" && <><div className="row"><input type="email" value={emailInput} onChange={(e) => setEmail(e.target.value)}></input>
+
+                            <button className="btn btn-md btn-info mt-1" onClick={() => canBeGuestFor()}>Отправить</button>
+                            {error}</div>
+                        </>
+                        }
+
+                        {guestUid !== "Выберите из списка" && guestUid !== "Введите ID получателя" && <CalendarBlock style={{ borderRadius: "10px" }} onTouchMove={(e) => dragEndOnTel(e)}>
+                            <Days >
+                                <StyledForGrid>
+                                    {GetDays()["Days"].map(item => {
+                                        if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
+
+                                            return <WeekDayWithDay >
+                                                <TodayDayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</TodayDayTitle>
+                                                <TodayFrame>{item}</TodayFrame>
+                                            </WeekDayWithDay>
+                                        } else {
+                                            return <WeekDayWithDay >
+                                                <DayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</DayTitle>
+                                                <DayFrame >{item}</DayFrame>
+                                            </WeekDayWithDay>
+                                        }
+                                    })}
+                                    <WeeksArrows>
+                                        <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
+                                        <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
+                                    </WeeksArrows>
+                                </StyledForGrid>
+                            </Days>
+                            <Month>
+                                <RedText onClick={prevMonth}>{"<"}</RedText>
+                                <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
+                                <RedText onClick={nextMonth}>{">"}</RedText>
+                            </Month>
+                            <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => { if (xANDxForTell[2] === 'next') { setxANDxForTell([]); nextWeek() } if (xANDxForTell[2] === 'prev') { setxANDxForTell([]); prevWeek() } }}>
+                                {renderCell(false)}
+                            </Main>
+                            <Footer>
+                                <span onClick={swichOnToday}>Today</span>
+
+                            </Footer>
+                        </CalendarBlock>}
+
+                    </div>
+                </div>
+
+                {/* ///////////////////для гостя////////////////// */}
+                <div className="modal fade " data-bs-backdrop="static" id="guestModal" tabIndex="-1" aria-labelledby="guestModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="guestModalLabel">{activeCellForGuest[2]}  {months[+`${activeCellForGuest[1][2]}${activeCellForGuest[1][3]}`]} {+`${activeCellForGuest[1][4]}${activeCellForGuest[1][5]}${activeCellForGuest[1][6]}${activeCellForGuest[1][7]}`}</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setAlertForGuest(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                {activeAlertForGuest && <TextareaAutosize
+                                    disabled={true}
+                                    style={{
+                                        borderRadius: "5px",
+                                        width: "100%",
+                                        border: 0,
+                                        resize: "none",
+                                        background: "rgb(200, 200, 200)",
+                                    }}
+                                    minRows={1}
+                                    maxRows={20}
+                                    onChange={(e) => handleChange(e)}>{databaseForGuest[activeCellForGuest[0]][activeCellForGuest[1]]}
+                                </TextareaAutosize>}
+
+                            </div>
+                            <div className="modal-footer" style={{ display: "flex", flexDirection: "row-reverse", justifyContent: "space-between" }}>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Background>
 
     )
 }
+
+
+
+
+
+
+
+
+
+
+// {false && <AlertWindow className="alert1">
+//                 <HeaderForAlert>
+//                     <DateAndTimeInAlert>
+//                         {activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}
+//                     </DateAndTimeInAlert>
+
+//                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
+//                 </HeaderForAlert>
+//                 <MainForAlert>
+
+
+//                     <TextareaAutosize
+//                         disabled={0}
+//                         style={{
+//                             "border-radius": "10px",
+//                             "background": "rgba(189, 189, 189, 1)"
+//                         }}
+//                         minRows={1}
+//                         maxRows={20}
+//                         onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
+//                     </TextareaAutosize>
+
+
+//                 </MainForAlert>
+//                 <FooterForAlert>
+//                     <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue, activeCell[2])}>Update</span>
+//                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
+
+
+
+
+//                 </FooterForAlert>
+//             </AlertWindow>}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// {false && <AlertWindow className="alert1">
+//                 <HeaderForAlert>
+//                     <DateAndTimeInAlert>
+//                         <span>Заполните время, дату</span>
+//                     </DateAndTimeInAlert>
+
+//                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
+//                 </HeaderForAlert>
+//                 <MainForAlert>
+
+//                     <form>
+//                         <input type="time" style={{
+//                             "border-radius": "5px",
+//                             width: "100%",
+//                             border: 0,
+//                             resize: "none",
+//                             background: "rgb(200, 200, 200)",
+//                         }}
+//                             onChange={(e) => handleChange1(e)} ></input>
+//                         <input style={{
+//                             "border-radius": "5px",
+//                             width: "100%",
+//                             border: 0,
+//                             resize: "none",
+//                             background: "rgb(200, 200, 200)",
+//                         }}
+//                             type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
+//                         <TextareaAutosize
+//                             placeholder="и то, что хотите сохранить"
+//                             disabled={0}
+//                             style={{
+//                                 "border-radius": "10px",
+//                                 "background": "rgba(189, 189, 189, 1)"
+//                             }}
+//                             minRows={1}
+//                             maxRows={20}
+//                             onChange={(e) => handleChange1(e)}>
+//                         </TextareaAutosize>
+//                     </form>
+//                 </MainForAlert>
+//                 <FooterForAlert>
+//                     <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
+//                 </FooterForAlert>
+//             </AlertWindow>}
