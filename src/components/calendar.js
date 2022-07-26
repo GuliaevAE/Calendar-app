@@ -801,17 +801,16 @@ export default function Calendar1() {
         const docSnap = await getDocs(query(collection(firestore, emailInput)))
         let y = false
         async function isemail() {
-            if (database.openAsGuest) { console.log('yes') } else { await setDoc(doc(firestore, user[0].uid, "openAsGuest"), {}) }
+            if (!database.openAsGuest) { await setDoc(doc(firestore, user[0].uid, "openAsGuest"), {}) }
             Object.keys(database.openAsGuest).forEach(key => {
-                console.log("emailInput", emailInput)
-                console.log("database.openAsGuest[key]", database.openAsGuest[key])
-                if (database.openAsGuest[key] == emailInput) {
+
+                if (database.openAsGuest[key] === emailInput) {
                     y = true
                 }
             })
         }
         isemail()
-        console.log("Cached document data:", docSnap);
+
         if (y) {
             seterror('Доступ уже есть')
             setTimeout(() => seterror(''), 1000)
@@ -836,7 +835,7 @@ export default function Calendar1() {
         <Background onClick={(e) => clockScreen(e)}>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
                 <Title >
-        
+
                     <TitleLogo className="img-fluid" style={{ width: "50%" }} small={false} data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" />
                     <div style={{ width: "50%" }}>
                         <button data-bs-toggle="modal" data-bs-target="#createModal" onClick={() => setAlertForCreate(true)}>Add</button>
@@ -912,14 +911,13 @@ export default function Calendar1() {
                                 }}>Update</button>
                                 {canDelete[0] && <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</button>}
                             </div>
-                            {error}
+                            {error === "Обновлено" ? <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div> : error}
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
 
 
             {/* Добавление через + */}
