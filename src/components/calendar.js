@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import styled, { css, keyframes } from 'styled-components'
-import leftArrow from '../components/images/leftArrow.svg'
+import leftArrow from '../components/images/LeftAr2.svg'
 import Logo1 from '../components/images/Logo1.svg'
 import ShortLogo from '../components/images/ShortLogo.svg'
+import leftAr from '../components/images/LeftAr1.svg'
 import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
@@ -113,11 +114,7 @@ font-family: 'Roboto Condensed' ;
 `
 const TitleLogo = styled.img`
     height:100% ;
-    background-size:100% 100% ;
-    @media (max-width: 440px) { 
-    ${props => props.small = "small"}
-        ; 
-  }
+    /* background-size:100% 100% ; */
   `
 
 
@@ -126,6 +123,20 @@ TitleLogo.defaultProps = {
     src: ShortLogo
 }
 
+const LeftAr = styled.img`
+height:70% ;
+`
+LeftAr.defaultProps = {
+
+    src: leftAr
+}
+const RightAr = styled(LeftAr)`
+transform: rotate(180deg);
+`
+RightAr.defaultProps = {
+
+    src: leftAr
+}
 
 
 const Secword = styled.span`
@@ -136,7 +147,7 @@ color: white;
 `
 
 const Days = styled.div`
-height: 4vh;
+height: 5vh;
 font-size:2vh;
 box-sizing:border-box ;
 background:rgba(124, 124, 124, 1);
@@ -150,16 +161,21 @@ font-family: 'Roboto Condensed' ;
 
 const Month = styled(Days)` 
 display:flex ;
-justify-content: space-between ;
+justify-content: center ;
 align-items:center ;
-padding-left:95px ;
+/* padding-left:95px ; */
+padding-left:40px ;
 padding-right:40px ;
 box-shadow:inset 0 -0.2vh rgba(105, 105, 105, 1);
+img{
+    margin: 0 10px ;
+}
 `
+
 
 const Main = styled.div`
 padding-top:1.9vh ;
-max-height:77vh ;
+max-height:75vh ;
 background:white ;
 overflow-y:scroll;
 box-sizing:border-box;
@@ -255,16 +271,16 @@ box-sizing:border-box ;
 `
 
 const Arrow = styled.img`
-opacity:0.5 ;
+opacity:1 ;
 width:4vh ;
 height:5vh;
 
-&:hover{
+/* &:hover{
     opacity:1 ;
 }
 &:active{
     opacity:1 ;  
-}
+} */
 `
 const Close = styled.img`
 width:25px ;
@@ -448,7 +464,7 @@ export default function Calendar1() {
 
         let helpArray = []
         let arrayWithTime = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]
-        let theDay = new Date(today.getFullYear(), today.getMonth())
+        let theDay = new Date()
 
         theDay.setDate(theDay.getDate() + week[0])
 
@@ -522,6 +538,7 @@ export default function Calendar1() {
 
 
     function canDeleteOrNot(time, code, clientORguest) {
+        console.log(code)
         let db = clientORguest ? database : databaseForGuest
         let aAlert = clientORguest ? activeAlert : activeAlertForGuest
         let sA = clientORguest ? setActive : setActiveForGuest
@@ -583,22 +600,23 @@ export default function Calendar1() {
 
         function nextDay() {
             theDate.setDate(theDate.getDate() + week[0])
-                arrayFilling()
+            arrayFilling()
             function arrayFilling() {
-               
+
                 if (arrayWithWeekDays[theDate.getDay()] !== 'Вс') {
                     let arr1 = week.map(item => item - 1)
                     setWeek(arr1)
-                }else{
-                for (let i = 0; i < 7; i++) {
-                    if(i===1){m = theDate.getMonth()}
-                    arr.push(theDate.getDate())
-                    titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
-                    theDate.setDate(theDate.getDate() + 1)
-                }}
-                
+                } else {
+                    for (let i = 0; i < 7; i++) {
+                        if (i === 1) { m = theDate.getMonth() }
+                        arr.push(theDate.getDate())
+                        titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
+                        theDate.setDate(theDate.getDate() + 1)
+                    }
+                }
+
             }
-            
+
             y = theDate.getFullYear()
         }
         nextDay()
@@ -607,7 +625,7 @@ export default function Calendar1() {
 
     function swichOnToday() {
         // setsw([true, 0])
-        setWeek([0,0])
+        setWeek([0, 0])
     }
 
 
@@ -801,7 +819,7 @@ export default function Calendar1() {
                 <Days >
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
-                            if (today.getDate() === item && (today.getDay() ===GetDays()["Days"].indexOf(item) + 1)&&(today.getMonth() ===GetDays()["Month"]||today.getMonth()-1 ===GetDays()["Month"])) {
+                            if (today.getDate() === item && (today.getDay() === GetDays()["Days"].indexOf(item) + 1) && (today.getMonth() === GetDays()["Month"] || today.getMonth() - 1 === GetDays()["Month"])) {
                                 // 
                                 return <WeekDayWithDay >
                                     <TodayDayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</TodayDayTitle>
@@ -815,15 +833,17 @@ export default function Calendar1() {
                             }
                         })}
                         <WeeksArrows>
-                            <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
-                            <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
+
+
                         </WeeksArrows>
                     </StyledForGrid>
                 </Days>
                 <Month>
-                    <RedText onClick={prevMonth}>{"<"}</RedText>
+                    <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
+                    <LeftAr onClick={prevMonth}></LeftAr>
                     <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
-                    <RedText onClick={nextMonth}>{">"}</RedText>
+                    <RightAr onClick={nextMonth}></RightAr>
+                    <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
                 </Month>
                 <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => { if (xANDxForTell[2] === 'next') { setxANDxForTell([]); nextWeek() } if (xANDxForTell[2] === 'prev') { setxANDxForTell([]); prevWeek() } }}>
                     {renderCell()}
@@ -839,7 +859,7 @@ export default function Calendar1() {
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">{activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{activeCell[2]} {activeCell[1][0]}{activeCell[1][1]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => setAlert(false)}></button>
                         </div>
                         <div className="modal-body">
@@ -989,17 +1009,19 @@ export default function Calendar1() {
                                             </WeekDayWithDay>
                                         }
                                     })}
-                                    <WeeksArrows>
+                                    {/* <WeeksArrows>
                                         <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
                                         <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
-                                    </WeeksArrows>
+                                    </WeeksArrows> */}
                                 </StyledForGrid>
                             </Days>
                             <Month>
-                                <RedText onClick={prevMonth}>{"<"}</RedText>
-                                <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
-                                <RedText onClick={nextMonth}>{">"}</RedText>
-                            </Month>
+                    <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
+                    <LeftAr onClick={prevMonth}></LeftAr>
+                    <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
+                    <RightAr onClick={nextMonth}></RightAr>
+                    <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
+                </Month>
                             <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => { if (xANDxForTell[2] === 'next') { setxANDxForTell([]); nextWeek() } if (xANDxForTell[2] === 'prev') { setxANDxForTell([]); prevWeek() } }}>
                                 {renderCell(false)}
                             </Main>
@@ -1047,115 +1069,3 @@ export default function Calendar1() {
 
     )
 }
-
-
-
-
-
-
-
-
-
-
-// {false && <AlertWindow className="alert1">
-//                 <HeaderForAlert>
-//                     <DateAndTimeInAlert>
-//                         {activeCell[2]}  {months[+`${activeCell[1][2]}${activeCell[1][3]}`]} {+`${activeCell[1][4]}${activeCell[1][5]}${activeCell[1][6]}${activeCell[1][7]}`}
-//                     </DateAndTimeInAlert>
-
-//                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
-//                 </HeaderForAlert>
-//                 <MainForAlert>
-
-
-//                     <TextareaAutosize
-//                         disabled={0}
-//                         style={{
-//                             "border-radius": "10px",
-//                             "background": "rgba(189, 189, 189, 1)"
-//                         }}
-//                         minRows={1}
-//                         maxRows={20}
-//                         onChange={(e) => handleChange(e)}>{database[activeCell[0]][activeCell[1]]}
-//                     </TextareaAutosize>
-
-
-//                 </MainForAlert>
-//                 <FooterForAlert>
-//                     <span onClick={() => updateData(activeCell[0], activeCell[1], inputValue, activeCell[2])}>Update</span>
-//                     <Secword>{canDelete[0] && <span onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</span>}</Secword>
-
-
-
-
-//                 </FooterForAlert>
-//             </AlertWindow>}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// {false && <AlertWindow className="alert1">
-//                 <HeaderForAlert>
-//                     <DateAndTimeInAlert>
-//                         <span>Заполните время, дату</span>
-//                     </DateAndTimeInAlert>
-
-//                     <Close id="close" onClick={() => setAlert(false)} src={close} ></Close>
-//                 </HeaderForAlert>
-//                 <MainForAlert>
-
-//                     <form>
-//                         <input type="time" style={{
-//                             "border-radius": "5px",
-//                             width: "100%",
-//                             border: 0,
-//                             resize: "none",
-//                             background: "rgb(200, 200, 200)",
-//                         }}
-//                             onChange={(e) => handleChange1(e)} ></input>
-//                         <input style={{
-//                             "border-radius": "5px",
-//                             width: "100%",
-//                             border: 0,
-//                             resize: "none",
-//                             background: "rgb(200, 200, 200)",
-//                         }}
-//                             type="date" in="123" onChange={(e) => handleChange1(e)} ></input>
-//                         <TextareaAutosize
-//                             placeholder="и то, что хотите сохранить"
-//                             disabled={0}
-//                             style={{
-//                                 "border-radius": "10px",
-//                                 "background": "rgba(189, 189, 189, 1)"
-//                             }}
-//                             minRows={1}
-//                             maxRows={20}
-//                             onChange={(e) => handleChange1(e)}>
-//                         </TextareaAutosize>
-//                     </form>
-//                 </MainForAlert>
-//                 <FooterForAlert>
-//                     <span onClick={() => sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0])}>Create</span>
-//                 </FooterForAlert>
-//             </AlertWindow>}
