@@ -579,72 +579,26 @@ export default function Calendar1() {
         let arr = []
         let m = 0
         let y = 0
-        let theDate = new Date(today.getFullYear(), today.getMonth())
-
-
+        let theDate = new Date()
 
         function nextDay() {
             theDate.setDate(theDate.getDate() + week[0])
-
-            if (swichOn[0] === true) {
                 arrayFilling()
-
-                if (theDate.getFullYear() < today.getFullYear()) {
-                    let arr1 = week.map(item => item + 365)
-                    setWeek(arr1)
-                } else if (theDate.getFullYear() > today.getFullYear()) {
-
-                    let arr1 = week.map(item => item - 365)
-                    setWeek(arr1)
-                } else if (theDate.getFullYear() === today.getFullYear()) {
-
-                    if (theDate.getMonth() < today.getMonth()) {
-                        let arr1 = week.map(item => item + 32 - new Date(theDate.getFullYear(), theDate.getMonth(), 32).getDate())
-                        setWeek(arr1)
-                    } else if (theDate.getMonth() > today.getMonth()) {
-                        let arr1 = week.map(item => item - 32 - new Date(theDate.getFullYear(), theDate.getMonth(), 32).getDate())
-                        setWeek(arr1)
-                    } else if (theDate.getMonth() === today.getMonth()) {
-                        if (arr.includes(today.getDate()) === true) {
-
-                            setsw([false, 0])
-                        } else if (theDate.getDate() < today.getDate()) {
-                            // let arr1 = week.map(item => item + Math.abs(theDate.getDate() - today.getDate()))
-                            let arr1 = week.map(item => item + 7)
-                            setWeek(arr1)
-
-                        }
-                        else if (theDate.getDate() > today.getDate()) {
-                            // let arr1 = week.map(item => item - Math.abs(theDate.getDate() - today.getDate()))
-                            let arr1 = week.map(item => item - 7)
-                            setWeek(arr1)
-
-                        }
-                        //  else if (theDate.getDate() === today.getDate()) {
-                        //     let arr1 = week.map(item => item + 1)
-                        //     setWeek(arr1)
-                        //     setsw([false, 0])
-                        // }
-                    }
-                }
-            } else {
-                arrayFilling()
-
-            }
-
             function arrayFilling() {
-
+               
+                if (arrayWithWeekDays[theDate.getDay()] !== 'Вс') {
+                    let arr1 = week.map(item => item - 1)
+                    setWeek(arr1)
+                }else{
                 for (let i = 0; i < 7; i++) {
+                    if(i===1){m = theDate.getMonth()}
                     arr.push(theDate.getDate())
                     titleOfWeeksDay.push(arrayWithWeekDays[theDate.getDay()])
                     theDate.setDate(theDate.getDate() + 1)
-                }
-                if (arrayWithWeekDays[theDate.getDay()] !== 'Пн') {
-                    let arr1 = week.map(item => item - 1)
-                    setWeek(arr1)
-                }
+                }}
+                
             }
-            m = theDate.getMonth()
+            
             y = theDate.getFullYear()
         }
         nextDay()
@@ -652,7 +606,8 @@ export default function Calendar1() {
     }
 
     function swichOnToday() {
-        setsw([true, 0])
+        // setsw([true, 0])
+        setWeek([0,0])
     }
 
 
@@ -846,8 +801,8 @@ export default function Calendar1() {
                 <Days >
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
-                            if (today.getDate() === item && today.getMonth() === GetDays()["Month"]) {
-
+                            if (today.getDate() === item && (today.getDay() ===GetDays()["Days"].indexOf(item) + 1)&&(today.getMonth() ===GetDays()["Month"]||today.getMonth()-1 ===GetDays()["Month"])) {
+                                // 
                                 return <WeekDayWithDay >
                                     <TodayDayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</TodayDayTitle>
                                     <TodayFrame>{item}</TodayFrame>
