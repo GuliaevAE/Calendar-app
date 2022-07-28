@@ -1,18 +1,19 @@
 {
   "files": {
     "main.css": "/Calendar-app/static/css/main.8748b566.css",
-    "main.js": "/Calendar-app/static/js/main.7e285fff.js",
+    "main.js": "/Calendar-app/static/js/main.3c2468e0.js",
     "static/media/IMFellFrenchCanonSC-Regular.ttf": "/Calendar-app/static/media/IMFellFrenchCanonSC-Regular.2449dbb0ecdea307ae6e.ttf",
-    "static/media/Logo1.svg": "/Calendar-app/static/media/Logo1.02914bc6c8586cd41324aed3999fb19e.svg",
-    "static/media/ShortLogo.svg": "/Calendar-app/static/media/ShortLogo.420f425db68a7c66d149f62dc3c28b43.svg",
+    "static/media/Logo1.svg": "/Calendar-app/static/media/Logo1.2c526572d8b695c9455fdb805fe80253.svg",
+    "static/media/ShortLogo.svg": "/Calendar-app/static/media/ShortLogo.5e659e0395e1acd2f49b94326d0cc4d5.svg",
     "static/media/close.svg": "/Calendar-app/static/media/close.0b35c66498a9b3c25d4d474ef6ff047e.svg",
-    "static/media/leftArrow.svg": "/Calendar-app/static/media/leftArrow.49c8791c6ab0e4565ce6f0fea827408f.svg",
+    "static/media/LeftAr1.svg": "/Calendar-app/static/media/LeftAr1.ff511e69bcb10525edcc43a6b7093b1c.svg",
+    "static/media/LeftAr2.svg": "/Calendar-app/static/media/LeftAr2.1d6f000c90ee0ea4a0ae09deae84a19d.svg",
     "index.html": "/Calendar-app/index.html",
     "main.8748b566.css.map": "/Calendar-app/static/css/main.8748b566.css.map",
-    "main.7e285fff.js.map": "/Calendar-app/static/js/main.7e285fff.js.map"
+    "main.3c2468e0.js.map": "/Calendar-app/static/js/main.3c2468e0.js.map"
   },
   "entrypoints": [
     "static/css/main.8748b566.css",
-    "static/js/main.7e285fff.js"
+    "static/js/main.3c2468e0.js"
   ]
 }
