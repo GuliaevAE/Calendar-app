@@ -1,8 +1,13 @@
 import React, {useContext} from 'react';
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import { Context } from '..';
 import firebase from 'firebase/compat/app'
 import Logo1 from '../components/images/Logo1.svg'
+import { fadeIn, fadeInLeft, fadeInRight } from 'react-animations';
+const fader = keyframes(fadeIn);
+const faderLeft = keyframes(fadeInLeft);
+const faderRight = keyframes(fadeInRight);
+
 
 const LoginScreen = styled.div`
 height:100vh ;
@@ -15,6 +20,7 @@ background:grey ;
 box-sizing:border-box ;
 
 
+
 button{
     border:3px solid rgba(7, 195, 255, 1);
     border-radius:10px ;
@@ -25,12 +31,14 @@ button{
     
     margin-left:2vw;
     font-size:20px ;
+    animation: 1s ${faderRight} alternate;
 }
 `
 
 const Logo = styled.img`
 margin: 4vh;
 width:100% ;
+animation: 1s ${faderLeft} alternate;
 `
 
 

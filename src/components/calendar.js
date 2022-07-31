@@ -38,8 +38,9 @@ flex-flow: column nowrap;
 height: 100vh; 
 width: 100vw ; 
 justify-content:center ;
-animation: 1s ${fader} alternate;
 background:rgba(124, 124, 124, 1);
+animation: 1s ${fader} alternate;
+
 @media screen and (orientation: landscape) {
   
    flex-flow: row wrap;
@@ -198,6 +199,7 @@ const Days = styled.div`
 height: 5vh;
 font-size:2vh;
 box-sizing:border-box ;
+background:rgba(124, 124, 124, 1);
 /* background:rgba(124, 124, 124, 1); */
 
 @font-face {
