@@ -10,7 +10,6 @@ import { HashRouter } from 'react-router-dom';
 const AppRouter = () => {
     const { auth } = useContext(Context)
     const user = useAuthState(auth)
-    console.log(user)
     return <HashRouter>
         {user[0] !== null ?
             (

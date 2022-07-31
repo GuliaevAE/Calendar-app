@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import styled, { css, keyframes } from 'styled-components'
 import leftArrow from '../components/images/LeftAr2.svg'
-import Logo1 from '../components/images/Logo1.svg'
 import ShortLogo from '../components/images/ShortLogo.svg'
 import leftAr from '../components/images/LeftAr1.svg'
 import profile from '../components/images/profileчб.svg'
 import exit2 from '../components/images/exitчб.svg'
 import fileadd from '../components/images/addчб.svg'
-import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
 import { Context } from "../index";
 import TextareaAutosize from 'react-textarea-autosize';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { fadeIn, fadeInLeft } from 'react-animations';
+import { fadeIn } from 'react-animations';
 
 import '../components/calendar.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -22,12 +20,6 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 
 ////animation
 const fader = keyframes(fadeIn);
-const faderLeft = keyframes(fadeInLeft);
-
-
-
-
-
 
 
 const Background = styled.div`
@@ -58,19 +50,14 @@ overflow: hidden;
    width:92% ;
   
 }
-
 `
-
 
 const Title = styled.div`
 @font-face {
   font-family: 'Roboto Condensed';
   src: url(${RobotoWoff2}) format('ttf'); 
 }
-    /* div{
-        display:flex ;
-        justify-content:end ;
-    } */
+    
     img{
         height:100% ;
         width:100% ;
@@ -87,8 +74,7 @@ const Title = styled.div`
     transition: background 0.5s;
     font-size:4vh ;
     display:flex ;
-    /* justify-content:center ; */
-    /* align-items:flex-end ; */
+
     &:hover{
         background:rgba(7, 195, 255, 1);
         color:rgba(124, 124, 124, 1) ;
@@ -108,19 +94,7 @@ const Title = styled.div`
     }
 
     }
-     span{
-        height:100% ;
-        width:100% ;
-        
-        @media screen and (orientation: landscape) {
-            /* text-orientation: upright; */
-             writing-mode: vertical-lr;
-             
      
-        
-    }
-        
-    }
 
 height: 10vh;
 background:rgba(124, 124, 124, 1) ;
@@ -136,14 +110,11 @@ padding-bottom:1vh ;
 box-sizing:border-box;
 font-family: 'Roboto Condensed' ;
 @media screen and (orientation: landscape) {
-   /* display:none; */
    flex-direction:column ;
    width:8% ;
    height: 100%;
    padding-left:1vw ;
-padding-right:1vw ;
-   /* padding-left:1vw ;
-   padding-right:1vw ; */
+   padding-right:1vw ;
    justify-content: center;
    align-items:space-between ;
 }
@@ -157,11 +128,9 @@ const TitleLogo = styled.img`
    width:30vh ;
     
 }
-  `
-
+`
 
 TitleLogo.defaultProps = {
-
     src: ShortLogo
 }
 
@@ -171,10 +140,7 @@ transition: margin .1s;
 &:hover{
     margin:0 20px ;
 }
-
-
 `
-
 
 LeftAr.defaultProps = {
     src: leftAr
@@ -200,7 +166,6 @@ height: 5vh;
 font-size:2vh;
 box-sizing:border-box ;
 background:rgba(124, 124, 124, 1);
-/* background:rgba(124, 124, 124, 1); */
 
 @font-face {
   font-family: 'Roboto Condensed';
@@ -219,15 +184,13 @@ const Month = styled(Days)`
 display:flex ;
 justify-content: center ;
 align-items:center ;
-/* padding-left:95px ; */
 padding-left:40px ;
 padding-right:40px ;
-box-shadow:inset 0 -0.2vh rgba(105, 105, 105, 1);
+
 img{
     margin: 0 10px ;
 }
 `
-
 
 const Main = styled.div`
 padding-top:1.9vh ;
@@ -238,11 +201,9 @@ box-sizing:border-box;
 ::-webkit-scrollbar { width: 0; }
 @media screen and (orientation: landscape) {
     height: 79vh;
-    border-radius: 10px ;
+    border-radius: 10px 0  0 10px ;
 }
 `
-
-
 
 const Footer = styled(Days)`
 display:flex ;
@@ -253,9 +214,8 @@ align-items:center ;
 color:white ;
 font-size:2.7vh ;
 
-box-shadow:inset 0 0.2vh rgba(105, 105, 105, 1);
-@media screen and (orientation: landscape) {
-    
+
+@media screen and (orientation: landscape) { 
     font-size:3.5vh;
 }
 `
@@ -277,8 +237,11 @@ position:relative ;
 const StyledForGrid = styled.div`
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
-padding-left:6.5vh ;
+padding-left:6.7vh ;
 position: relative ;
+@media screen and (orientation: landscape) {
+padding-left:8vh ;
+}
 `
 
 const StyledForGridCell = styled.div`
@@ -299,7 +262,7 @@ transition: background 0.5s;
 `
 
 const StyledForGridCellWithTimes = styled.div`
-font-size:2vh ;
+font-size:2vh;
 position:absolute ;
 top: -1.5vh;
 left: 1vh;
@@ -333,16 +296,6 @@ color: rgba(7, 195, 255, 1);
 `
 
 
-
-const WeeksArrows = styled.div`
-position:absolute ;
-height:100% ;
-display:flex ;
-align-items:center ;
-padding-left:1vw ;
-box-sizing:border-box ;
-`
-
 const Arrow = styled.img`
 opacity:1 ;
 width:4vh ;
@@ -355,78 +308,8 @@ transition: margin .1s;
 `
 
 
-const AlertWindow = styled.div`
-position:absolute ;
-min-width:250px ;
-border-radius:20px ;
-margin: 0 auto;
-animation: 1s ${faderLeft} alternate;
-`
-const HeaderForAlert = styled.div`
-height: 15%;
-width:85% ;
-display:flex ;
-margin-top:10px ;
-justify-content:space-between ;
-align-items:center ;
-`
-
-const DateAndTimeInAlert = styled.div`
-height: 90%;
-padding-left:10px ;
-width:100% ;
-background:rgba(189, 189, 189, 1) ;
-border-radius:5px;
-`
-
-const MainForAlert = styled.div`
-font-size:2.2vh ;
-height: 55%;
-width: 85%;
-border-radius:10px ;
-padding: 1vh 1vw;
-margin-top:5px ;
-display:flex ;
-flex-direction:column ;
-justify-content:center ;
-
-
-
-input{
-    border-radius: 10px;
-    border: none; 
-    margin-right: 10px;
-    background:rgba(189, 189, 189, 1);
-}
-
-
- textarea{
-    border:none ;
-    width: 100%;
-    margin: 5px auto;
-    resize:none;
-    border-radius: 10px;
-    /* background:rgba(189, 189, 189, 1); */
-  
-}
-`
-const FooterForAlert = styled.div`
-height: auto;
-margin-bottom:5px;
-
-display:flex ;
-flex-direction:row ;
-justify-content:space-between ;
-align-items:center ;
-width:90% ;
-color:white ;
-`
-
-
 
 export default function Calendar1() {
-
-
     ///////////////////////////////////////////////////////////
     /////////место для чужого календаря
     const [arrayguest, setArrayGuest] = useState([])
@@ -442,8 +325,6 @@ export default function Calendar1() {
             p1[doc.id] = doc.data()
         })
         setDataForGuest(p1)
-
-
     }
 
     const [activeCellForGuest, setActiveForGuest] = useState([0, 0])
@@ -456,23 +337,15 @@ export default function Calendar1() {
     const dateInput = useRef(null);
     const textInput = useRef(null);
 
-
-
     const { auth } = useContext(Context)
     const user = useAuthState(auth)
-
     const [xANDxForTell, setxANDxForTell] = useState([])
-
-
     const { firebaseApp, firestore } = useContext(Context)
-
     const [cutout, setout] = useState(true)
     const [activeAlert, setAlert] = useState(false)
     const [activeAlertForCreate, setAlertForCreate] = useState(false)
-
     const [inputValue, setInputValue] = useState('')
     let [inputForCreate, setCreateInput] = useState([])
-
     const [database, setData] = useState({})
 
     useEffect(() => {
@@ -500,7 +373,6 @@ export default function Calendar1() {
     }
 
     const [week, setWeek] = useState([0, 7])
-    const [swichOn, setsw] = useState([true, 0])
     const [canDelete, setCanDelete] = useState([false, 0, 0])
     const [today] = useState(new Date())
     const [activeCell, setActive] = useState([0, 0])
@@ -543,16 +415,6 @@ export default function Calendar1() {
                 })}
             </StyledForGrid>)
         })
-
-        // function checkData(time, item) {
-        //     if (activeCell[0] === time && activeCell[1] === item) {
-        //         return "rgba(7, 195, 255, 1)"
-        //     }
-        //     if (database[time] && database[time][item]) {
-
-        //         return "rgba(124, 124, 124, 1)"
-        //     } else return "white"
-        // }
 
         return (
             <>
@@ -664,7 +526,6 @@ export default function Calendar1() {
                         theDate.setDate(theDate.getDate() + 1)
                     }
                 }
-
             }
 
             y = theDate.getFullYear()
@@ -674,14 +535,10 @@ export default function Calendar1() {
     }
 
     function swichOnToday() {
-        // setsw([true, 0])
         setWeek([0, 0])
     }
 
-
     async function sendMes(nw, time, code, data, originalTime) {
-
-
         if (nw === true) {
             // добавление времени
             setNewData(time, code, data, originalTime)
@@ -689,7 +546,6 @@ export default function Calendar1() {
             // добавление дня к времени
             updateData(time, code, data, originalTime)
         }
-
         setAlertForCreate(false)
     }
 
@@ -734,9 +590,6 @@ export default function Calendar1() {
 
             }).then(getMes).then(afterDataSaved)
         }
-
-        // }
-
     }
 
     function nextWeek() {
@@ -805,10 +658,8 @@ export default function Calendar1() {
             inputForCreate[1] = code
         }
         if (e.target.type === "text" || e.target.type === "textarea") {
-
             inputForCreate[2] = e.target.value
         }
-
     }
 
     function timeoutError() {
@@ -816,10 +667,7 @@ export default function Calendar1() {
         setTimeout(() => seterror(''), 1000)
     }
 
-
     async function canBeGuestFor() {
-
-
 
         const docSnap = await getDocs(query(collection(firestore, emailInput)))
         let y = false
@@ -846,7 +694,6 @@ export default function Calendar1() {
             }
     }
 
-
     return (
         <Background onClick={(e) => clockScreen(e)}>
             <Title >
@@ -865,7 +712,7 @@ export default function Calendar1() {
                 <Days >
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
-                            if (today.getDate() === item && (today.getDay() === GetDays()["Days"].indexOf(item) + 1) && (today.getMonth() === GetDays()["Month"] || today.getMonth() - 1 === GetDays()["Month"])) {
+                            if (today.getDate() === item && ((today.getDay() === GetDays()["Days"].indexOf(item) + 1)|| (today.getDay() === 0 &&GetDays()["Days"].indexOf(item) + 1 ===7)) && (today.getMonth() === GetDays()["Month"] || today.getMonth() - 1 === GetDays()["Month"])) {
                                 // 
                                 return <WeekDayWithDay >
                                     <TodayDayTitle >{titleOfWeeksDay[GetDays()["Days"].indexOf(item) + 1]}</TodayDayTitle>
@@ -878,10 +725,6 @@ export default function Calendar1() {
                                 </WeekDayWithDay>
                             }
                         })}
-                        <WeeksArrows>
-
-
-                        </WeeksArrows>
                     </StyledForGrid>
                 </Days>
                 <Month>
@@ -990,7 +833,6 @@ export default function Calendar1() {
 
                             <button type="button" className="btn btn-secondary" onClick={(e) => { (inputForCreate[0] && inputForCreate[1] && inputForCreate[2]) ? sendMes(inputForCreate[3], inputForCreate[0].split(":")[0] + ":00", inputForCreate[1], inputForCreate[2], inputForCreate[0]) : timeoutError() }}>Create</button>
                             {error}
-                            {/* {canDelete[0] && <button type="button" className="btn btn-primary" onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</button>} */}
                         </div>
                     </div>
                 </div>
@@ -1055,10 +897,6 @@ export default function Calendar1() {
                                             </WeekDayWithDay>
                                         }
                                     })}
-                                    {/* <WeeksArrows>
-                                        <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
-                                        <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
-                                    </WeeksArrows> */}
                                 </StyledForGrid>
                             </Days>
                             <Month>
