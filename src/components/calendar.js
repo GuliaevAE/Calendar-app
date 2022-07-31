@@ -4,6 +4,9 @@ import leftArrow from '../components/images/LeftAr2.svg'
 import Logo1 from '../components/images/Logo1.svg'
 import ShortLogo from '../components/images/ShortLogo.svg'
 import leftAr from '../components/images/LeftAr1.svg'
+import profile from '../components/images/profileчб.svg'
+import exit2 from '../components/images/exitчб.svg'
+import fileadd from '../components/images/addчб.svg'
 import close from '../components/images/close.svg'
 import RobotoWoff2 from '../components/IMFellFrenchCanonSC-Regular.ttf'
 import { doc, setDoc, getDocs, updateDoc, deleteField, collection, query } from "firebase/firestore";
@@ -35,18 +38,26 @@ flex-flow: column nowrap;
 height: 100vh; 
 width: 100vw ; 
 justify-content:center ;
+animation: 1s ${fader} alternate;
+background:rgba(124, 124, 124, 1);
+@media screen and (orientation: landscape) {
+  
+   flex-flow: row wrap;
+  
+  
+}
 `
 
 const CalendarBlock = styled.div`
 width:100% ;
 position:relative ;
-animation: 1s ${fader} alternate;
-overflow: hidden;
 
-/* 
-@media (max-width: 740px) { 
-    width:100vw ; 
-  } */
+overflow: hidden;
+@media screen and (orientation: landscape) {
+   width:92% ;
+  
+}
+
 `
 
 
@@ -55,12 +66,13 @@ const Title = styled.div`
   font-family: 'Roboto Condensed';
   src: url(${RobotoWoff2}) format('ttf'); 
 }
-    div{
+    /* div{
         display:flex ;
         justify-content:end ;
-    }
+    } */
     img{
-        
+        height:100% ;
+        width:100% ;
     }
 
     button{
@@ -68,41 +80,52 @@ const Title = styled.div`
     border-radius:10px ;
     background: transparent ;
     color: rgba(7, 195, 255, 1);
-    height:9vh ;
+    height:7vh ;
     width:100% ;
     margin-left:2vw;
     transition: background 0.5s;
+    font-size:4vh ;
+    display:flex ;
+    /* justify-content:center ; */
+    /* align-items:flex-end ; */
     &:hover{
         background:rgba(7, 195, 255, 1);
         color:rgba(124, 124, 124, 1) ;
     }
-    }
 
-/* @media (max-width: 410px) { 
-    button{
-    
-    width:auto ;
-    margin-left:1vw;
-    }
-  } */
-
-  /* @media (max-width: 300px) { 
-    div{
-        display:flex ;
-        flex-direction:column ;
-        width:auto ;
-    }
-    button{
-        height:4vh ;
+    @media screen and (orientation: landscape) {
+        margin-left:0;
+        height:30% ;
         width:100% ;
+        margin-top:10px;
+        /* writing-mode: vertical-lr;  */
+        text-align:center;
+        /* transform:rotate(180deg) ; */
+     /* text-orientation: upright; */
+     
+        
     }
-  } */
+
+    }
+     span{
+        height:100% ;
+        width:100% ;
+        
+        @media screen and (orientation: landscape) {
+            /* text-orientation: upright; */
+             writing-mode: vertical-lr;
+             
+     
+        
+    }
+        
+    }
 
 height: 10vh;
 background:rgba(124, 124, 124, 1) ;
 color:white ;
 display:flex ;
-flex: 0 0 100px;
+width:100% ;
 justify-content:space-between ;
 align-items:center ;
 padding-left:2.5vw ;
@@ -111,10 +134,28 @@ padding-top:1vh ;
 padding-bottom:1vh ;
 box-sizing:border-box;
 font-family: 'Roboto Condensed' ;
+@media screen and (orientation: landscape) {
+   /* display:none; */
+   flex-direction:column ;
+   width:8% ;
+   height: 100%;
+   padding-left:1vw ;
+padding-right:1vw ;
+   /* padding-left:1vw ;
+   padding-right:1vw ; */
+   justify-content: center;
+   align-items:space-between ;
+}
 `
 const TitleLogo = styled.img`
     height:100% ;
-    /* background-size:100% 100% ; */
+    width:100% ;
+    @media screen and (orientation: landscape) {
+    transform:rotate(90deg) ;
+   height:100% ;
+   width:30vh ;
+    
+}
   `
 
 
@@ -125,9 +166,16 @@ TitleLogo.defaultProps = {
 
 const LeftAr = styled.img`
 height:70% ;
-`
-LeftAr.defaultProps = {
+transition: margin .1s;
+&:hover{
+    margin:0 20px ;
+}
 
+
+`
+
+
+LeftAr.defaultProps = {
     src: leftAr
 }
 const RightAr = styled(LeftAr)`
@@ -150,13 +198,19 @@ const Days = styled.div`
 height: 5vh;
 font-size:2vh;
 box-sizing:border-box ;
-background:rgba(124, 124, 124, 1);
+/* background:rgba(124, 124, 124, 1); */
+
 @font-face {
   font-family: 'Roboto Condensed';
   src: url(${RobotoWoff2}) format('ttf');
        
 }
 font-family: 'Roboto Condensed' ;
+@media screen and (orientation: landscape) {
+    height: 7vh;
+    font-size:3vh;
+    
+}
 `
 
 const Month = styled(Days)` 
@@ -175,17 +229,18 @@ img{
 
 const Main = styled.div`
 padding-top:1.9vh ;
-max-height:75vh ;
+height:75vh ;
 background:white ;
 overflow-y:scroll;
 box-sizing:border-box;
 ::-webkit-scrollbar { width: 0; }
+@media screen and (orientation: landscape) {
+    height: 79vh;
+    border-radius: 10px ;
+}
 `
 
-const RedText = styled.span`
-color: white;
-font-size:2.7vh ;
-`
+
 
 const Footer = styled(Days)`
 display:flex ;
@@ -195,8 +250,12 @@ padding-right:2vw ;
 align-items:center ;
 color:white ;
 font-size:2.7vh ;
-height: 5vh;
+
 box-shadow:inset 0 0.2vh rgba(105, 105, 105, 1);
+@media screen and (orientation: landscape) {
+    
+    font-size:3.5vh;
+}
 `
 
 const WeekDayWithDay = styled.div`
@@ -206,7 +265,12 @@ font-size:2vh;
 text-align:center ;
 align-items:center ;
 position:relative ;
+@media screen and (orientation: landscape) {
+    
+    font-size:3vh;
+}
 `
+
 
 const StyledForGrid = styled.div`
 display: grid;
@@ -226,6 +290,10 @@ background:${props => props.bg};
 height:5vh ;
 width:100% ;
 transition: background 0.5s;
+@media screen and (orientation: landscape) {
+    height: 7vh;
+  
+}
 `
 
 const StyledForGridCellWithTimes = styled.div`
@@ -234,7 +302,10 @@ position:absolute ;
 top: -1.5vh;
 left: 1vh;
 color: rgba(190, 190, 191, 1) ;
-
+@media screen and (orientation: landscape) {
+    
+    font-size:2.5vh;
+}
 `
 
 const DayFrame = styled.div`
@@ -274,26 +345,13 @@ const Arrow = styled.img`
 opacity:1 ;
 width:4vh ;
 height:5vh;
-
-/* &:hover{
-    opacity:1 ;
-}
-&:active{
-    opacity:1 ;  
-} */
-`
-const Close = styled.img`
-width:25px ;
-height:25px;
-margin-left:10px ;
-filter: invert(100%);
+transition: margin .1s;
 &:hover{
-    filter: invert(0);
+    margin:0 20px ;
 }
-&:active{
-    filter: invert(0); 
-}
+
 `
+
 
 const AlertWindow = styled.div`
 position:absolute ;
@@ -389,16 +447,7 @@ export default function Calendar1() {
     const [activeCellForGuest, setActiveForGuest] = useState([0, 0])
     const [emailInput, setEmail] = useState('')
 
-
-
     ///////////////////////////////////////////////////////////
-
-
-
-
-
-
-
 
     const [error, seterror] = useState('')
     const timeInput = useRef(null);
@@ -538,7 +587,6 @@ export default function Calendar1() {
 
 
     function canDeleteOrNot(time, code, clientORguest) {
-        console.log(code)
         let db = clientORguest ? database : databaseForGuest
         let aAlert = clientORguest ? activeAlert : activeAlertForGuest
         let sA = clientORguest ? setActive : setActiveForGuest
@@ -794,28 +842,24 @@ export default function Calendar1() {
             } else {
                 sendMes(database.openAsGuest ? false : true, 'openAsGuest', emailInput, emailInput, false)
             }
-
-
-
-
-
-        // if ()
-        //     
     }
 
 
     return (
         <Background onClick={(e) => clockScreen(e)}>
+            <Title >
+
+                {/* <TitleLogo small={false} data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" /> */}
+
+                <button data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop"> <img src={profile}></img></button>
+                {/* <div style={{ width: "50%" }}> */}
+                <button data-bs-toggle="modal" data-bs-target="#createModal" onClick={() => setAlertForCreate(true)}><img src={fileadd}></img></button>
+                <button onClick={() => auth.signOut()}><img src={exit2}></img></button>
+                {/* </div> */}
+
+            </Title>
             <CalendarBlock onTouchMove={(e) => dragEndOnTel(e)}>
-                <Title >
 
-                    <TitleLogo className="img-fluid" style={{ width: "50%" }} small={false} data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" />
-                    <div style={{ width: "50%" }}>
-                        <button data-bs-toggle="modal" data-bs-target="#createModal" onClick={() => setAlertForCreate(true)}>Add</button>
-                        <button onClick={() => auth.signOut()}>Exit</button>
-                    </div>
-
-                </Title>
                 <Days >
                     <StyledForGrid>
                         {GetDays()["Days"].map(item => {
@@ -839,6 +883,7 @@ export default function Calendar1() {
                     </StyledForGrid>
                 </Days>
                 <Month>
+
                     <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
                     <LeftAr onClick={prevMonth}></LeftAr>
                     <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
@@ -886,8 +931,8 @@ export default function Calendar1() {
                                 }}>Update</button>
                                 {canDelete[0] && <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => deleteData(canDelete[1], canDelete[2])}>Delete</button>}
                             </div>
-                            {error === "Обновлено" ? <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Загрузка...</span>
+                            {error === "Обновлено" ? <div className="spinner-border" role="status">
+                                <span className="visually-hidden">Загрузка...</span>
                             </div> : error}
                         </div>
                     </div>
@@ -915,7 +960,6 @@ export default function Calendar1() {
                                 }} ref={timeInput} type="time" onChange={(e) => handleChange1(e)} ></input>
                                 <input style={{
                                     borderRadius: "5px",
-                                    width: "100%",
                                     marginBottom: "10px",
                                     border: 0,
                                     resize: "none",
@@ -1016,12 +1060,12 @@ export default function Calendar1() {
                                 </StyledForGrid>
                             </Days>
                             <Month>
-                    <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
-                    <LeftAr onClick={prevMonth}></LeftAr>
-                    <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
-                    <RightAr onClick={nextMonth}></RightAr>
-                    <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
-                </Month>
+                                <Arrow onClick={prevWeek} src={leftArrow} ></Arrow>
+                                <LeftAr onClick={prevMonth}></LeftAr>
+                                <span><Secword>{months[GetDays()["Month"]]}</Secword> <Wirstword>{GetDays()["Year"]}</Wirstword></span>
+                                <RightAr onClick={nextMonth}></RightAr>
+                                <Arrow onClick={nextWeek} src={leftArrow} style={{ transform: "rotate(180deg)" }}></Arrow>
+                            </Month>
                             <Main onTouchStart={(e) => dragStartOnTel(e)} onTouchEnd={() => { if (xANDxForTell[2] === 'next') { setxANDxForTell([]); nextWeek() } if (xANDxForTell[2] === 'prev') { setxANDxForTell([]); prevWeek() } }}>
                                 {renderCell(false)}
                             </Main>
